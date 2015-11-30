@@ -101,7 +101,7 @@ Y reiniciar para que los cambios surjan efecto
 ### Red
 
 Para configurar la red, todo dependerá de lo que queramos. En mi caso, tengo un cable ethernet y un WiFi dongle, y no quiero una IP fija, con lo que puedo configurar las dos conexiones por DHCP.
-Para ello, primero hay que editar el archivo `/etc/network/interfaces` de la siguiente manera:
+Para ello, primero hay que editar el archivo `/etc/network/interfaces` de la siguiente manera:  
 `sudo nano /etc/network/interfaces`
 
 Y cambiar el contenido del archivo por el siguiente:
