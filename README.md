@@ -41,14 +41,14 @@
 
 ## Instalar sistema operativo
 
-Estos son los pasos básicos que debemos seguir para configurar inicialmente una **Raspberry Pi 2 Model B** con la distribución **Raspbian Jessie** (basado en la distribución de Linux Debian Jessie), y con un mínimo de seguridad para que no nos entren hasta la cocina.
+Estos son los pasos básicos que debemos seguir para configurar inicialmente una **Raspberry Pi 2 Model B** con la distribución **Raspbian Jessie** (basado en la distribución de Linux Debian Jessie), y con un mínimo de seguridad para que no nos entren hasta la cocina.  
 Para descargarla se puede hacer desde [este enlace](https://www.raspberrypi.org/downloads/raspbian/), y seguir los pasos descritos [aquí](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) para preparar la imagen del sistema operativo en la tarjeta SD.
 
-La tarjeta SD debe estar formateada en FAT32.
-Si usamos Mac, ir a *Disk Utility*, buscar la tarjeta SD y ver el número de disco que aparece en la parte inferior izquierda. Será algo como *disk2*.
-Desmontar la partición con *Unmount*. No con *Eject*, o sino deberemos montar la tarjeta de nuevo.
-Y finalmente, desde el terminal ejecutar
-`sudo dd bs=1m if=path_of_your_image.img of=/dev/rdiskn`
+La tarjeta SD debe estar formateada en FAT32.  
+Si usamos Mac, ir a *Disk Utility*, buscar la tarjeta SD y ver el número de disco que aparece en la parte inferior izquierda. Será algo como *disk2*.  
+Desmontar la partición con *Unmount*. No con *Eject*, o sino deberemos montar la tarjeta de nuevo.  
+Y finalmente, desde el terminal ejecutar  
+`sudo dd bs=1m if=path_of_your_image.img of=/dev/rdiskn`  
 donde `n` es el número de disco que hemos visto anteriormente.
 
 Finalizados estos pasos, ya podemos insertar la tarjeta de memoria en la Raspberry Pi e iniciarla.
@@ -58,52 +58,55 @@ Finalizados estos pasos, ya podemos insertar la tarjeta de memoria en la Raspber
 
 ### Averiguar la dirección ip de la Raspberry Pi 2
 
-Desde la terminal del Mac
-`sudo nmap -sP 192.168.1.0/24`
-En caso de no tener instalado nmap, podemos instalar el paquete con Home Brew
+Desde la terminal del Mac  
+`sudo nmap -sP 192.168.1.0/24`  
+En caso de no tener instalado nmap, podemos instalar el paquete con Home Brew  
 `brew install nmap`
 
 ### Conectarse por ssh
 
-El usuario es “pi” y la contraseña inicial es “raspberry”
+El usuario es “pi” y la contraseña inicial es “raspberry”  
 `ssh pi@ip_address_of_the_raspberry`
 
 ### Cambiar el password del usuario "pi"
 
-No es aconsejable dejar el usuario "pi" con el password por defecto
+No es aconsejable dejar el usuario "pi" con el password por defecto  
 `passwd`
 
 ### Configuración general
 
-Hay un par de opciones de configuración que hay cambiar desde la configuración general
+Hay un par de opciones de configuración que hay cambiar desde la configuración general  
 `sudo raspi-config`
 
-- **Expand Filesystem**
-Nos permite expandir el Sistema Operativo para que utilice todo el espacio disponible de la tarjeta.
+- **Expand Filesystem**  
+Nos permite expandir el Sistema Operativo para que utilice todo el espacio disponible de la tarjeta.  
 Tras reiniciar, se puede verificar que el espacio es correcto con el comando `df -h`
-- **Internationalisation Options / Change Timezone**
+- **Internationalisation Options / Change Timezone**  
 Nuestra Raspberry Pi está configurada para detectar la fecha y hora desde Internet automáticamente cuando se enciende, pero la primera vez que arranca, le tendremos que indicar la zona horaria en la que nos encontramos.
 
 ### Actualización de software
 
-Para actualizar el software, usar el comando siguiente. Puede tardar un rato.
+Para actualizar el software, usar el comando siguiente. Puede tardar un rato.  
 `sudo apt-get update && sudo apt-get upgrade`
 
 #### Actualización del Kernel
 
-Para ver la versión del kernel
-`uname -r`
-Si es muy antigua se puede actualizar
-`sudo rpi-update`
-Y reiniciar para que los cambios surjan efecto
+Para ver la versión del kernel  
+`uname -r`  
+Si es muy antigua se puede actualizar  
+`sudo rpi-update`  
+Y reiniciar para que los cambios surjan efecto  
 `sudo reboot`
 
 ### Red
 
-------------------------------------------------------------------------------------------------
-Para configurar la red, todo dependerá de lo que queramos. En mi caso, quiero que el cable ethernet sea siempre prioritario al a WiFi, y en el caso de la WiFi, tengo dos distintas configuradas.
-Para ello, primero hay que editar el archivo ``
+Para configurar la red, todo dependerá de lo que queramos. En mi caso, tengo un cable ethernet y un WiFi dongle, y no quiero una IP fija, con lo que puedo configurar las dos conexiones por DHCP.
+Para ello, primero hay que editar el archivo `/etc/network/interfaces` de la siguiente manera:
+`sudo nano /etc/network/interfaces`
 
+Y cambiar el contenido del archivo por el siguiente:
+
+```
 auto lo
 
 iface lo inet loopback
@@ -112,30 +115,30 @@ iface eth0 inet dhcp
 auto wlan0
 allow-hotplug wlan0
 iface wlan0 inet dhcp
-wpa-ssid “nombre de tu RED WIFI”
-wpa-psk “tu password WIFI aquí”
-------------------------------------------------------------------------------------------------
+wpa-ssid "your wifi ssid"
+wpa-psk "your wifi password"
+```
 
 ### Discos duros externos
 
 #### Discos duros sin alimentación externa
 
-Para conectar pendrives, no hay problema, pero para conectar un disco duro que requiera alimentación por el puerto USB deberemos realizar un pequeño cambio, ya que por defecto la Raspberry Pi no da suficiente potencia por el puerto USB.
-Deberemos modificar el archivo `/boot/config.txt` y añadir `max_usb_current=1` al final de todo.
+Para conectar pendrives, no hay problema, pero para conectar un disco duro que requiera alimentación por el puerto USB deberemos realizar un pequeño cambio, ya que por defecto la Raspberry Pi no da suficiente potencia por el puerto USB.  
+Deberemos modificar el archivo `/boot/config.txt` y añadir `max_usb_current=1` al final de todo.  
 `sudo nano /boot/config.txt`
 
 #### Auto mount
 
-Para montar los discos duros al inicio, hay que modificar el archivo `/etc/fstab` añadiendo las líneas correspondientes.
+Para montar los discos duros al inicio, hay que modificar el archivo `/etc/fstab` añadiendo las líneas correspondientes.  
 `sudo nano /etc/fstab`
 
-En mi caso, he añadido dos discos duros formateados en NTFS, para facilitar la conexión entre diferentes dispositivos y sistemas operativos.
-Para montar un disco, se puede hacer a partir del dispositivo, que encontraremos en `/dev/...` si ejecutamos `sudo fdisk -l`
+En mi caso, he añadido dos discos duros formateados en NTFS, para facilitar la conexión entre diferentes dispositivos y sistemas operativos.  
+Para montar un disco, se puede hacer a partir del dispositivo, que encontraremos en `/dev/...` si ejecutamos `sudo fdisk -l`  
 Pero para asegurar que la unidad que se va a montar es una en concreto, se puede hacer a partir del UUID del dispositivo. Si ejecutamos `sudo blkid`, o `ls -laF /dev/disk/by-uuid/`, veremos una lista de todos los dispositivos con sus identificadores.
 
 ##### Permisos a la hora de montar un disco NTFS
 
-Una parte complicada a la hora de montar discos formateados en NTFS es el tema de los permisos, ya que con `chmod` no se pueden cambiar.
+Una parte complicada a la hora de montar discos formateados en NTFS es el tema de los permisos, ya que con `chmod` no se pueden cambiar.  
 Como me imagino que terminaré teniendo varios usuarios que necesitarán acceso a estos discos, crearé un grupo *ntfs* para darle permisos, e iré añadiendo usuarios a este grupo conforme los vaya necesitando
 
 ```
@@ -145,7 +148,7 @@ sudo cat /etc/group           # listado de los grupos
 id -nG pi                     # grupos a los que pertenece el usuario pi
 ```
 
-Este grupo solo lo usaré en uno de los discos, que contendrá datos para modificar, el otro, que es solo de lectura, lo montaré con a configuración por defecto.
+Este grupo solo lo usaré en uno de los discos, que contendrá datos para modificar, el otro, que es solo de lectura, lo montaré con a configuración por defecto.  
 A continuación, ya podemos modificar el arthivo `/etc/fstab` añadiendo algo parecido a
 
 ```
@@ -153,10 +156,10 @@ UUID=843671A53671993E   /media/disk1 ntfs-3g defaults,nofail 0       0
 UUID=8EA0B1A2A0B19167   /media/disk2 ntfs-3g rw,auto,uid=pi,gid=ntfs,fmask=0002,dmask=0000,nofail 0       0
 ```
 
-Yo he usado `ntfs-3g` y no `ntfs` para tener acceso de lectura y escritura, y he puesto `nofail` para no obtener errores al iniciar en caso de que los discos no estén conectados.
+Yo he usado `ntfs-3g` y no `ntfs` para tener acceso de lectura y escritura, y he puesto `nofail` para no obtener errores al iniciar en caso de que los discos no estén conectados.  
 Para forzar el montaje de los discos podemos ejecutar `sudo mount -a`
 
-Llegados a este punto, tenemos los dos discos duros montados y funcionando. Pero al reiniciar la Raspberry Pi, nos podemos encontrar que los discos duros ya no están montados. Esto puede ocurrir si el sistema operativo de inicia antes que la detección de discos.
+Llegados a este punto, tenemos los dos discos duros montados y funcionando. Pero al reiniciar la Raspberry Pi, nos podemos encontrar que los discos duros ya no están montados. Esto puede ocurrir si el sistema operativo de inicia antes que la detección de discos.  
 Para solucionarlo, tenemos la opción de retardar el inicio añadiendo un pequeño delay. Modificaremos el archivo `/boot/cmdline.txt` ejecutando `sudo nano /boot/cmdline.txt` y añadiremos al final de todo `rootdelay=5`. Con esto el problema debería quedar resuelto.
 
 
@@ -165,15 +168,15 @@ Para solucionarlo, tenemos la opción de retardar el inicio añadiendo un peque�
 
 ### Firewall UFW
 
-Instalamos el paquete para el firewall
-`sudo apt-get install ufw`
-Permitimos el puerto 22 a todo el mundo
-`sudo ufw allow 22`
-Permitimos todos los puertos de la red local
-`sudo ufw allow from 192.168.1.0/24`
-Permitimos el puerto web a todo el mundo
-`sudo ufw allow 80`
-Habilitamos el firewall
+Instalamos el paquete para el firewall  
+`sudo apt-get install ufw`  
+Permitimos el puerto 22 a todo el mundo  
+`sudo ufw allow 22`  
+Permitimos todos los puertos de la red local  
+`sudo ufw allow from 192.168.1.0/24`  
+Permitimos el puerto web a todo el mundo  
+`sudo ufw allow 80`  
+Habilitamos el firewall  
 `sudo ufw enable`
 
 ### Baneador de IPs
@@ -190,15 +193,15 @@ sudo service fail2ban restart
 
 #### Instalación
 
-Para acceder a la Raspberry Pi 2 mediante un escritorio remoto mediante VNC hay que instalar el servidor VNC
-`sudo apt-get install tightvncserver`
-Para iniciar una conexión
-`vncserver :1`
-O bien especificando los valores de geometry a la resolución de nuestra pantalla del ordenador
-`vncserver :1 -geometry 1024x600 -depth 16`
+Para acceder a la Raspberry Pi 2 mediante un escritorio remoto mediante VNC hay que instalar el servidor VNC  
+`sudo apt-get install tightvncserver`  
+Para iniciar una conexión  
+`vncserver :1`  
+O bien especificando los valores de geometry a la resolución de nuestra pantalla del ordenador  
+`vncserver :1 -geometry 1024x600 -depth 16`  
 El 1 es el número de escritorio que le asignamos. Nos pedirá que pongamos una contraseña entre 6 y 8 caracteres y ponemos **NO** a la visualización de dicha contraseña.
 
-Para detener el servidor VNC
+Para detener el servidor VNC  
 `vncserver -kill :1`
 
 #### Auto inicio
@@ -224,23 +227,23 @@ La próxima vez que enciendas la Raspberry el servidor VNC se reiniciará autom�
 
 #### Conexión remota
 
-Para conectarse, desde un Mac solo hay que ir al Finder, "Go", "Connect to server..." (o Command + K), y escribir
-`vnc://ip_address_of_the_raspberry:5901`
-O desde el terminal
+Para conectarse, desde un Mac solo hay que ir al Finder, "Go", "Connect to server..." (o Command + K), y escribir  
+`vnc://ip_address_of_the_raspberry:5901`  
+O desde el terminal  
 `open vnc://ip_address_of_the_raspberry:5901`
 
-A mi personalmente me gusta más el **RealVNC Viewer** que se puede descargar [aquí](http://www.realvnc.com/download/viewer/).
-En la casilla *VNC Server* pondremos la dirección IP de la Raspberry Pi y el número de escritorio
-`ip_address_of_the_raspberry:1`
-Aparecerá una ventana informando de que la conexión no está encriptada, damos a Continue, y después nos pedirá la contraseña que hemos establecido previamente cuando instalamos el VNCServer en la Raspberry Pi.
+A mi personalmente me gusta más el **RealVNC Viewer** que se puede descargar [aquí](http://www.realvnc.com/download/viewer/).  
+En la casilla *VNC Server* pondremos la dirección IP de la Raspberry Pi y el número de escritorio  
+`ip_address_of_the_raspberry:1`  
+Aparecerá una ventana informando de que la conexión no está encriptada, damos a Continue, y después nos pedirá la contraseña que hemos establecido previamente cuando instalamos el VNCServer en la Raspberry Pi.  
 Y finalmente tendremos el escritorio de nuestra Raspberry Pi en pantalla para controlarla con el ordenador.
 
 #### Clipboard
 
-Para habilitar el clipboard y tener funciones como cut, paste, y copy, debemos instalar el paquete autocutsell
-`sudo apt-get install autocutsel`
-A continuación, hay que modificar el archivo `/home/pi/.vnc/xstartup` con el comando
-`nano /home/pi/.vnc/xstartup`
+Para habilitar el clipboard y tener funciones como cut, paste, y copy, debemos instalar el paquete autocutsell  
+`sudo apt-get install autocutsel`  
+A continuación, hay que modificar el archivo `/home/pi/.vnc/xstartup` con el comando  
+`nano /home/pi/.vnc/xstartup`  
 y añadir la línea `autocutsel -fork`. Debe quedar algo parecido a
 
 ```
@@ -259,12 +262,12 @@ export XKL_XMODMAP_DISABLE=1
 
 ### Servidor DLNA
 
-Uno de los usos que se le puede dar a la Raspberry Pi, es como servidor DLNA, para después podernos conectar desde una Smart TV, o desde cualquier otro dispositivo y ver el contenido multimedia.
-Para ello, existe un servidor muy ligero que podemos instalar:
+Uno de los usos que se le puede dar a la Raspberry Pi, es como servidor DLNA, para después podernos conectar desde una Smart TV, o desde cualquier otro dispositivo y ver el contenido multimedia.  
+Para ello, existe un servidor muy ligero que podemos instalar:  
 `sudo apt-get install minidlna`
 
-Una vez instalado, hay que configurarlo, y para ello debemos editar el archivo
-`sudo nano /etc/minidlna.conf`
+Una vez instalado, hay que configurarlo, y para ello debemos editar el archivo  
+`sudo nano /etc/minidlna.conf`  
 y modificar las líneas siguientes para que queden así, y el resto de valores los podemos dejar por defecto
 
 ```
@@ -288,15 +291,15 @@ notify_interval=895
 
 De todos estos parámetros, los importantes son:
 
-- **media_dir**
+- **media_dir**  
 Son los directorios que se deben rastrear. Podemos indicar con las letras *V (video)*, *A (audio)* y *P (imágenes)* el tipo de contenido que queremos rastrear, o no indicar nada y que se rastree todo.
-- **friendly_name**
+- **friendly_name**  
 Es el nombre que veremos desde nuestro Smart TV u otro dispositivo cuando queramos ver el contenido.
 
-Por último, debemos reiniciar el servidor DLNA
-`sudo service minidlna restart`
-y forzar la búsqueda de contenido
-`sudo service minidlna force-reload`
+Por último, debemos reiniciar el servidor DLNA  
+`sudo service minidlna restart`  
+y forzar la búsqueda de contenido  
+`sudo service minidlna force-reload`  
 En la documentación, pone que se puede forzar la búsqueda de contenido con el comando `minidlnad -R`, pero yo lo he probado y no funciona.
 
 ### Centro de descargas
@@ -305,12 +308,12 @@ Ya que tenemos un ordenador que consume solo 2,5W y que está siempre encendido 
 
 #### Instalar Transmission
 
-Para ello podemos instalar Transmission, un cliente de torrent
+Para ello podemos instalar Transmission, un cliente de torrent  
 `sudo apt-get install transmission-daemon`
 
 #### Configurar Transmission
 
-Primero detenemos el servicio
+Primero detenemos el servicio  
 `sudo service transmission-daemon stop`
 
 Creamos los directorios necesarios para cuando se está descargando un archivo, para cuando finaliza la descarga, y para el torrent
@@ -330,11 +333,11 @@ Para gestionar los permisos en los sistemas UNIX, tenemos varios comandos que de
 - chmod (change mode): permite cambiar los permisos de acceso de un fichero o directorio.
 - chgrp (change group): permite cambiar el grupo de usuarios de un archivo o directorio.
 
-Pero no sirven en discos NTFS. Por este motivo he creado previamente el grupo *ntfs*, y para esta aplicación, es suficiente con añadir el usuario *debian-transmission* al grupo
+Pero no sirven en discos NTFS. Por este motivo he creado previamente el grupo *ntfs*, y para esta aplicación, es suficiente con añadir el usuario *debian-transmission* al grupo  
 `sudo usermod -a -G ntfs debian-transmission`
 
-Para configurar las carpetas de descarga y otros parámetros de funcionamiento, debemos editar el archivo `/etc/transmission-daemon/settings.json` mediante el comando
-`sudo nano /etc/transmission-daemon/settings.json`
+Para configurar las carpetas de descarga y otros parámetros de funcionamiento, debemos editar el archivo `/etc/transmission-daemon/settings.json` mediante el comando  
+`sudo nano /etc/transmission-daemon/settings.json`  
 y modificar las siguietes propiedades:
 
 ```
@@ -352,23 +355,23 @@ y modificar las siguietes propiedades:
 
 Que sirven para:
 
-- **blocklist-enabled, blocklist-url**
+- **blocklist-enabled, blocklist-url**  
 Es un listado de IPs bloqueadas. Se puede dejar deshabilitado, tal y como viene por defecto, o añadir una lista, para tener algo de protección.
 En mi caso, he añadido una lista de [I-Blocklist](https://www.iblocklist.com/) y he activado el bloqueo.
-- **download-dir**
+- **download-dir**  
 Directorio en el que se encontrarán los archivos una vez terminada la descarga.
-- **incomplete-dir, incomplete-dir-enabled**
+- **incomplete-dir, incomplete-dir-enabled**  
 Directorio en el que se realizará la descarga. Esto va a gustos, pero yo prefiero que el directorio de descarga sea distinto al directorio que contiene las descargas finalizadas.
-- **rpc-whitelist-enabled**
+- **rpc-whitelist-enabled**  
 Listado de IPs que pueden acceder. En este caso, lo deshabilito para poder acceder libremente desde cualquier IP.
-- **watch-dir, watch-dir-enabled**
+- **watch-dir, watch-dir-enabled**  
 Directorio que se observará por si se añaden torrents nuevos.
 
-Con toda la configuración terminada, ya se puede iniciar el servicio
+Con toda la configuración terminada, ya se puede iniciar el servicio  
 `sudo service transmission-daemon start`
 
-Y se puede acceder vía web a través de la dirección
-`http://ip_address_of_the_raspberry:9091`
+Y se puede acceder vía web a través de la dirección  
+`http://ip_address_of_the_raspberry:9091`  
 y el usuario y password por defecto es `transmission:transmission`
 
 
@@ -377,65 +380,65 @@ y el usuario y password por defecto es `transmission:transmission`
 
 ### Mostrar información sobre el hardware
 
-Para conocer la información hardware general
-`cat /proc/cpuinfo`
-Para saber el estado de la memoria
-`cat /proc/meminfo`
-Para ver las particiones de la tarjeta de memoria o el disco duro
-`cat /proc/partitions`
-Si queremos conocer la versión de nuestra Raspberry PiRaspi
-`cat /proc/version`
-Visualizar todos los dispositivos USB conectados
+Para conocer la información hardware general  
+`cat /proc/cpuinfo`  
+Para saber el estado de la memoria  
+`cat /proc/meminfo`  
+Para ver las particiones de la tarjeta de memoria o el disco duro  
+`cat /proc/partitions`  
+Si queremos conocer la versión de nuestra Raspberry Pi  
+`cat /proc/version`  
+Visualizar todos los dispositivos USB conectados  
 `lsusb`
 
 ### Los comandos más importantes
 
-Para entrar en la ventana de configuración de Raspbian
-`sudo raspi-config`
-Si estamos en modo línea de comandos y queremos volver al modo gráfico
-`startx`
-Apagar el dispositivo
-`sudo poweroff` o `sudo shutdown -h`
-Reiniciar la Raspberry Pi
-`sudo reboot` o `sudo shutdown -r now`
-Para ver la temperatura
-`cat /sys/class/thermal/thermal_zone0/temp`
-Y de una forma más *user friendly*
-`/opt/vc/bin/vcgencmd measure_temp`
-Para ver los paquetes instalados
+Para entrar en la ventana de configuración de Raspbian  
+`sudo raspi-config`  
+Si estamos en modo línea de comandos y queremos volver al modo gráfico  
+`startx`  
+Apagar el dispositivo  
+`sudo poweroff` o `sudo shutdown -h`  
+Reiniciar la Raspberry Pi  
+`sudo reboot` o `sudo shutdown -r now`  
+Para ver la temperatura  
+`cat /sys/class/thermal/thermal_zone0/temp`  
+Y de una forma más *user friendly*  
+`/opt/vc/bin/vcgencmd measure_temp`  
+Para ver los paquetes instalados  
 `dpkg -l` o `apt --installed list`
 
 ### Comandos de búsqueda
 
-Para buscar un tipo de archivo
-`find . -name .DS_Store -type f`
-Para contar cuantos archivos hay
-`find . -name *.jpg -type f | wc -l`
-O si es en el mismo directorio
-`ls *.jpg | wc -l`
-Y si queremos eliminar archivos a partir de una búsqueda (cuidado con este comando)
+Para buscar un tipo de archivo  
+`find . -name .DS_Store -type f`  
+Para contar cuantos archivos hay  
+`find . -name *.jpg -type f | wc -l`  
+O si es en el mismo directorio  
+`ls *.jpg | wc -l`  
+Y si queremos eliminar archivos a partir de una búsqueda (cuidado con este comando)  
 `find . -name .DS_Store -type f -delete`
 
 ### Otros comandos útiles
 
-Para crear un link (enlace o acceso directo) a un directorio
-`ln -s /home/pi/Pictures/ my-pictures`
-Y a un archivo
-`ln -s /home/pi/Pictures/Background.jpg "My background picture.jpg"`
-Para listar los procesos que se están ejecutando
-`ps aux`
-Y con información más completa
-`ps auxwf`
-Para ver el historial de comandos ejecutados en el terminal
+Para crear un link (enlace o acceso directo) a un directorio  
+`ln -s /home/pi/Pictures/ my-pictures`  
+Y a un archivo  
+`ln -s /home/pi/Pictures/Background.jpg "My background picture.jpg"`  
+Para listar los procesos que se están ejecutando  
+`ps aux`  
+Y con información más completa  
+`ps auxwf`  
+Para ver el historial de comandos ejecutados en el terminal  
 `history`
 
 
 ## Alias
 
-Algunos comandos pueden resultar incómodos de teclear debido al gran número de parámetros, más aún cuando los usamos muy a menudo.
-Los alias son códigos mnemotécnicos para acordarnos mejor.
-Para crearlos, hay que modificar el archivo `~/.bashrc` escribiendo
-`sudo nano ~/.bashrc`
+Algunos comandos pueden resultar incómodos de teclear debido al gran número de parámetros, más aún cuando los usamos muy a menudo.  
+Los alias son códigos mnemotécnicos para acordarnos mejor.  
+Para crearlos, hay que modificar el archivo `~/.bashrc` escribiendo  
+`sudo nano ~/.bashrc`  
 añadiendo nuestros alias al final de todo del archivo. Si por ejemplo nos cuesta acordarnos de como ver la temperatura, o el espacio de las unidades, o los paquetes instalados, podemos tener alias como
 
 ```
@@ -444,6 +447,6 @@ alias space='df -h'
 alias packages='dpkg -l'
 ```
 
-Y simplemente escribiendo en el terminal `temperature`, `space` o `packages` obtendríamos el mismo resultado que ejecutando la instrucción más compleja.
-Finalmente recargarlo para que los cambios surjan efecto
+Y simplemente escribiendo en el terminal `temperature`, `space` o `packages` obtendríamos el mismo resultado que ejecutando la instrucción más compleja.  
+Finalmente recargarlo para que los cambios surjan efecto  
 `source ~/.bashrc`
