@@ -17,6 +17,10 @@ Raspberry Pi Start Guide
 	- [Actualización de software](#actualización-de-software)
 		- [Actualización del Kernel](#actualización-del-kernel)
 	- [Red](#red)
+		- [Configuración Wi-Fi en Raspbian](#configuración-wi-fi-en-raspbian)
+		- [Desactivar ahorro de energía](#desactivar-ahorro-de-energía)
+		- [Establecer la conexión (DHCP)](#establecer-la-conexión-dhcp)
+		- [Dirección IP estática (opcional)](#dirección-ip-estática-opcional)
 	- [Discos duros externos](#discos-duros-externos)
 		- [Discos duros sin alimentación externa](#discos-duros-sin-alimentación-externa)
 		- [Auto mount](#auto-mount)
@@ -86,15 +90,18 @@ Desde la terminal del Mac
 En caso de no tener instalado nmap, podemos instalar el paquete con Home Brew  
 `brew install nmap`
 
+
 ### Conectarse por ssh
 
 El usuario es “pi” y la contraseña inicial es “raspberry”  
 `ssh pi@ip_address_of_the_raspberry`
 
+
 ### Cambiar el password del usuario "pi"
 
 No es aconsejable dejar el usuario "pi" con el password por defecto  
 `passwd`
+
 
 ### Configuración general
 
@@ -106,6 +113,7 @@ Nos permite expandir el Sistema Operativo para que utilice todo el espacio dispo
 Tras reiniciar, se puede verificar que el espacio es correcto con el comando `df -h`
 - **Internationalisation Options / Change Timezone**  
 Nuestra Raspberry Pi está configurada para detectar la fecha y hora desde Internet automáticamente cuando se enciende, pero la primera vez que arranca, le tendremos que indicar la zona horaria en la que nos encontramos.
+
 
 ### Actualización de software
 
@@ -121,26 +129,74 @@ Si es muy antigua se puede actualizar
 Y reiniciar para que los cambios surjan efecto  
 `sudo reboot`
 
+
 ### Red
 
-Para configurar la red, todo dependerá de lo que queramos. En mi caso, tengo un cable ethernet y un WiFi Dongle, y no quiero una IP fija, con lo que puedo configurar las dos conexiones por DHCP.  
-Para ello, primero hay que editar el archivo `/etc/network/interfaces` de la siguiente manera:  
+Para configurar la red, todo dependerá de lo que queramos. En mi caso, tengo un cable ethernet y un Wi-Fi Dongle.  
+Para el adaptador Wi-Fi escogí el EDIMAX EW-7811Un, 150 Mbit/s, ya que no requería de drivers adicionales ya que el Kernel ya lo tiene instalado (RTL8192CU) y lo reconoce, y el consumo es tan bajo que no requiere de alimentación adicional.  
+
+#### Configuración Wi-Fi en Raspbian
+
+Raspbian reconoce que el adaptador tan pronto como se inserta. Se puede comprobar esto fácilmente utilizando el comando `dmesg`  
+Después de que el USB se reconoce, debería aparecer un nuevo dispositivo de red, y lo podemos ver con el uso de `ifconfig`  
+
+#### Desactivar ahorro de energía
+
+Antes de establecer una conexión de red inalámbrica, la función de ahorro de energía del conductor Edimax debe ser desactivada, de lo contrario la conexión se interrumpe durante la inactividad. Para evitar esto, hay que crear un archivo de configuración para el controlador:  
+`sudo nano /etc/modprobe.d/8192cu.conf`
+
+Y añadir a ese archivo el contenido siguiente:  
+`options 8192cu rtw_power_mgnt=0 rtw_enusbss=0`
+
+#### Establecer la conexión (DHCP)
+
+Para establecer una conexión con nuestra red inalámbrica debemos editar el archivo `/etc/network/interfaces`  
 `sudo nano /etc/network/interfaces`
 
-Y cambiar el contenido del archivo por el siguiente:
+Y adaptar el contenido:
 
 ```
 auto lo
-
 iface lo inet loopback
 iface eth0 inet dhcp
 
 auto wlan0
 allow-hotplug wlan0
 iface wlan0 inet dhcp
-wpa-ssid "your wifi ssid"
-wpa-psk "your wifi password"
+wpa-ap-scan 1
+wpa-scan-ssid 1
+wpa-ssid "YOUR-WIFI-NAME"
+wpa-psk "YOUR-WIFI-PASSWORD"
 ```
+
+Por último, guardamos los cambios y reiniciamos el servicio de red.  
+`sudo service networking restart`
+
+#### Dirección IP estática (opcional)
+
+Si lo que queremos es que la IP sea estática, el contenido del archivo deberá ser algo parecido a:
+
+```
+auto lo
+iface lo inet loopback
+
+iface eth0 inet static
+address 192.168.1.50
+netmask 255.255.255.0
+gateway 192.168.1.1
+
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet static
+address 192.168.1.51
+netmask 255.255.255.0
+gateway 192.168.1.1
+wpa-ap-scan 1
+wpa-scan-ssid 1
+wpa-ssid "YOUR-WIFI-NAME"
+wpa-psk "YOUR-WIFI-PASSWORD"
+```
+
 
 ### Discos duros externos
 
@@ -214,6 +270,7 @@ Permitimos el puerto web a todo el mundo
 Habilitamos el firewall  
 `sudo ufw enable`
 
+
 ### Baneador de IPs
 
 Instalamos fail2ban para banear aquellas IP que intenten acceder a nuestra Raspberry Pi 2 demasiadas veces con los datos de acceso incorrectos.
@@ -223,6 +280,7 @@ sudo apt-get install fail2ban
 sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 sudo service fail2ban restart
 ```
+
 
 ### Servidor VNC
 
@@ -295,6 +353,7 @@ export XKL_XMODMAP_DISABLE=1
 /etc/X11/Xsession
 ```
 
+
 ### Servidor DLNA
 
 Uno de los usos que se le puede dar a la Raspberry Pi, es como servidor DLNA, para después podernos conectar desde una Smart TV, o desde cualquier otro dispositivo y ver el contenido multimedia.  
@@ -336,6 +395,7 @@ Por último, debemos reiniciar el servidor DLNA
 y forzar la búsqueda de contenido  
 `sudo service minidlna force-reload`  
 En la documentación, pone que se puede forzar la búsqueda de contenido con el comando `minidlnad -R`, pero yo lo he probado y no funciona.
+
 
 ### Centro de descargas
 
@@ -418,6 +478,7 @@ Si queremos conocer la versión de nuestra Raspberry Pi
 Visualizar todos los dispositivos USB conectados  
 `lsusb`
 
+
 ### Los comandos más importantes
 
 Para entrar en la ventana de configuración de Raspbian  
@@ -435,6 +496,7 @@ Y de una forma más *user friendly*
 Para ver los paquetes instalados  
 `dpkg -l` o `apt --installed list`
 
+
 ### Comandos de búsqueda
 
 Para buscar un tipo de archivo  
@@ -445,6 +507,7 @@ O si es en el mismo directorio
 `ls *.jpg | wc -l`  
 Y si queremos eliminar archivos a partir de una búsqueda (cuidado con este comando)  
 `find . -name .DS_Store -type f -delete`
+
 
 ### Otros comandos útiles
 
