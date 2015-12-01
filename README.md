@@ -61,6 +61,7 @@ Es imposible poner todos los enlaces de los sitios que he consultado, pero si po
 | [raspberryshop.es](http://www.raspberryshop.es/) 							| [wiki.debian.org](https://wiki.debian.org/) 		| [belinuxmyfriend.com](http://www.belinuxmyfriend.com/) 	|
 | [raspipc.es](http://www.raspipc.es/)										| [wiki.archlinux.org](https://wiki.archlinux.org/)	| [elotrolado.net](http://www.elotrolado.net/) 				|
 | [modmypi.com](http://www.modmypi.com/)									| [ubuntu-mate.org](https://ubuntu-mate.org/)		| [algoentremanos.com](http://algoentremanos.com/)			|
+| [raspberry.cat](http://www.raspberry.cat/) 								|													|															|
 
 
 
@@ -109,10 +110,14 @@ Hay un par de opciones de configuración que hay cambiar desde la configuración
 `sudo raspi-config`
 
 - **Expand Filesystem**  
-Nos permite expandir el Sistema Operativo para que utilice todo el espacio disponible de la tarjeta.  
-Tras reiniciar, se puede verificar que el espacio es correcto con el comando `df -h`
-- **Internationalisation Options / Change Timezone**  
+Extiende el espacio utilizable por el sistema operativo a toda la capacidad de la microSD. Tras reiniciar, se puede verificar que el espacio es correcto con el comando `df -h`
+- **Internationalisation Options > Change Timezone**  
 Nuestra Raspberry Pi está configurada para detectar la fecha y hora desde Internet automáticamente cuando se enciende, pero la primera vez que arranca, le tendremos que indicar la zona horaria en la que nos encontramos.
+- **Advanced Options > Memory Split**  
+Es la memoria que le asignamos a la GPU (procesador de gráficos). Si vamos a instalar Kodi (XBMC), para que funcione perfectamente es aconsejable darle la mitad de la RAM, en la Raspberry Pi 2 tenemos 1 GB y en las demás 512 MB, así que pondremos 256 MB para la Raspberry Pi antigua o 512 MB para la Raspberry Pi 2.
+- **Advanced Options > SSH**  
+Es fundamental activarlo para poder acceder a la Raspberry Pi por red sin necesidad de teclado ni ratón.
+
 
 
 ### Actualización de software
