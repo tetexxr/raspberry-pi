@@ -1,9 +1,13 @@
-# Raspberry Pi Start Guide
+Raspberry Pi Start Guide
+========================
 
 [comment]: # (Markdown wiki https://es.wikipedia.org/wiki/Markdown and another good explanation http://markdown.es/sintaxis-markdown)
 
 
-## Índice
+Índice
+------
+
+- [Enlaces de interés](#enlaces-de-interés)
 - [Instalar sistema operativo](#instalar-sistema-operativo)
 - [Configuración](#configuración)
 	- [Averiguar la dirección ip de la Raspberry Pi 2](#averiguar-la-dirección-ip-de-la-raspberry-pi-2)
@@ -39,7 +43,26 @@
 
 
 
-## Instalar sistema operativo
+Enlaces de interés
+------------------
+
+Toda esta guía ha sido elaborada pensando en la necesidad que tenía, y haciendo muchas pruebas hasta dar con la solución perfecta, o la que mejor me ha funcionado en cada caso.  
+Es imposible poner todos los enlaces de los sitios que he consultado, pero si pondré los que para mi son los más importantes y los que más me han servido.
+
+| Raspberry Pi 																| Linux 											| Otros 													|
+|---------------------------------------------------------------------------|---------------------------------------------------|-----------------------------------------------------------|
+| [raspberrypi.org](https://www.raspberrypi.org/) 							| [elinux.org](http://elinux.org/) 					| [techjawab.com](http://www.techjawab.com/) 				|
+| [raspberrypi.org/forums](https://www.raspberrypi.org/forums/) 			| [help.ubuntu.com](https://help.ubuntu.com/) 		| [howtogeek.com](http://www.howtogeek.com/) 				|
+| [raspberrypi.stackexchange.com](http://raspberrypi.stackexchange.com/) 	| [askubuntu.com](http://askubuntu.com/) 			| [wiki.contribs.org](http://wiki.contribs.org/) 			|
+| [raspberryparatorpes.net](http://raspberryparatorpes.net/) 				| [esdebian.org](http://www.esdebian.org/) 			| [geekytheory.com](https://geekytheory.com/) 				|
+| [raspberryshop.es](http://www.raspberryshop.es/) 							| [wiki.debian.org](https://wiki.debian.org/) 		| [belinuxmyfriend.com](http://www.belinuxmyfriend.com/) 	|
+| [raspipc.es](http://www.raspipc.es/)										| [wiki.archlinux.org](https://wiki.archlinux.org/)	| [elotrolado.net](http://www.elotrolado.net/) 				|
+| [modmypi.com](http://www.modmypi.com/)									| [ubuntu-mate.org](https://ubuntu-mate.org/)		| [algoentremanos.com](http://algoentremanos.com/)			|
+
+
+
+Instalar sistema operativo
+--------------------------
 
 Estos son los pasos básicos que debemos seguir para configurar inicialmente una **Raspberry Pi 2 Model B** con la distribución **Raspbian Jessie** (basado en la distribución de Linux Debian Jessie), y con un mínimo de seguridad para que no nos entren hasta la cocina.  
 Para descargarla se puede hacer desde [este enlace](https://www.raspberrypi.org/downloads/raspbian/), y seguir los pasos descritos [aquí](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) para preparar la imagen del sistema operativo en la tarjeta SD.
@@ -54,7 +77,8 @@ donde `n` es el número de disco que hemos visto anteriormente.
 Finalizados estos pasos, ya podemos insertar la tarjeta de memoria en la Raspberry Pi e iniciarla.
 
 
-## Configuración
+Configuración
+-------------
 
 ### Averiguar la dirección ip de la Raspberry Pi 2
 
@@ -164,7 +188,8 @@ Para solucionarlo, tenemos la opción de retardar el inicio añadiendo un peque�
 
 
 
-## Instalación de software
+Instalación de software
+-----------------------
 
 ### Firewall UFW
 
@@ -376,7 +401,8 @@ y el usuario y password por defecto es `transmission:transmission`
 
 
 
-## Comandos básicos que hay que conocer
+Comandos básicos que hay que conocer
+------------------------------------
 
 ### Mostrar información sobre el hardware
 
@@ -433,7 +459,8 @@ Para ver el historial de comandos ejecutados en el terminal
 `history`
 
 
-## Alias
+Alias
+-----
 
 Algunos comandos pueden resultar incómodos de teclear debido al gran número de parámetros, más aún cuando los usamos muy a menudo.  
 Los alias son códigos mnemotécnicos para acordarnos mejor.  
