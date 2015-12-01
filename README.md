@@ -20,7 +20,7 @@ Raspberry Pi Start Guide
 	- [Discos duros externos](#discos-duros-externos)
 		- [Discos duros sin alimentación externa](#discos-duros-sin-alimentación-externa)
 		- [Auto mount](#auto-mount)
-			- [Permisos a la hora de montar un disco NTFS](#permisos-a-la-hora-de-montar-un-disco-ntfs)
+			- [Permisos](#permisos)
 - [Instalación de software](#instalación-de-software)
 	- [Firewall UFW](#firewall-ufw)
 	- [Baneador de IPs](#baneador-de-ips)
@@ -33,7 +33,6 @@ Raspberry Pi Start Guide
 	- [Centro de descargas](#centro-de-descargas)
 		- [Instalar Transmission](#instalar-transmission)
 		- [Configurar Transmission](#configurar-transmission)
-			- [Administrar permisos](#administrar-permisos)
 - [Comandos básicos que hay que conocer](#comandos-básicos-que-hay-que-conocer)
 	- [Mostrar información sobre el hardware](#mostrar-información-sobre-el-hardware)
 	- [Los comandos más importantes](#los-comandos-más-importantes)
@@ -124,7 +123,7 @@ Y reiniciar para que los cambios surjan efecto
 
 ### Red
 
-Para configurar la red, todo dependerá de lo que queramos. En mi caso, tengo un cable ethernet y un WiFi dongle, y no quiero una IP fija, con lo que puedo configurar las dos conexiones por DHCP.
+Para configurar la red, todo dependerá de lo que queramos. En mi caso, tengo un cable ethernet y un WiFi Dongle, y no quiero una IP fija, con lo que puedo configurar las dos conexiones por DHCP.  
 Para ello, primero hay que editar el archivo `/etc/network/interfaces` de la siguiente manera:  
 `sudo nano /etc/network/interfaces`
 
@@ -160,9 +159,20 @@ En mi caso, he añadido dos discos duros formateados en NTFS, para facilitar la 
 Para montar un disco, se puede hacer a partir del dispositivo, que encontraremos en `/dev/...` si ejecutamos `sudo fdisk -l`  
 Pero para asegurar que la unidad que se va a montar es una en concreto, se puede hacer a partir del UUID del dispositivo. Si ejecutamos `sudo blkid`, o `ls -laF /dev/disk/by-uuid/`, veremos una lista de todos los dispositivos con sus identificadores.
 
-##### Permisos a la hora de montar un disco NTFS
+##### Permisos
 
-Una parte complicada a la hora de montar discos formateados en NTFS es el tema de los permisos, ya que con `chmod` no se pueden cambiar.  
+Para gestionar los permisos en los sistemas UNIX, tenemos varios comandos que debemos conocer:
+
+- **usermod (user modify)**  
+Permite modificar una cuenta de usuario.
+- **chown (change owner)**  
+Permite cambiar el propietario de un archivo o directorio.
+- **chmod (change mode)**  
+Permite cambiar los permisos de acceso de un fichero o directorio.
+- **chgrp (change group)**  
+Permite cambiar el grupo de usuarios de un archivo o directorio.
+
+Una parte complicada a la hora de montar discos formateados en NTFS es el tema de los permisos, ya que con `chmod` no se pueden cambiar, y para mi gusto, usar `chown` no es bueno, ya que el propietario de los directorios no tiene porque cambiar por querer asignar permisos.  
 Como me imagino que terminaré teniendo varios usuarios que necesitarán acceso a estos discos, crearé un grupo *ntfs* para darle permisos, e iré añadiendo usuarios a este grupo conforme los vaya necesitando
 
 ```
@@ -349,16 +359,7 @@ sudo mkdir -p /media/hdd/sharing
 sudo mkdir -p /media/hdd/torrents
 ```
 
-##### Administrar permisos
-
-Para gestionar los permisos en los sistemas UNIX, tenemos varios comandos que debemos conocer:
-
-- usermod (user modify): modifica una cuenta de usuario.
-- chown (change owner): permite cambiar el propietario de un archivo o directorio.
-- chmod (change mode): permite cambiar los permisos de acceso de un fichero o directorio.
-- chgrp (change group): permite cambiar el grupo de usuarios de un archivo o directorio.
-
-Pero no sirven en discos NTFS. Por este motivo he creado previamente el grupo *ntfs*, y para esta aplicación, es suficiente con añadir el usuario *debian-transmission* al grupo  
+Para dar permisos, es suficiente con añadir el usuario *debian-transmission* al grupo *ntfs* que he creado previamente  
 `sudo usermod -a -G ntfs debian-transmission`
 
 Para configurar las carpetas de descarga y otros parámetros de funcionamiento, debemos editar el archivo `/etc/transmission-daemon/settings.json` mediante el comando  
