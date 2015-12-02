@@ -33,6 +33,11 @@ Raspberry Pi Start Guide
 		- [Auto inicio](#auto-inicio)
 		- [Conexión remota](#conexión-remota)
 		- [Clipboard](#clipboard)
+	- [Compartir ficheros con samba](#compartir-ficheros-con-samba)
+		- [Instalar samba](#instalar-samba)
+		- [Configurar samba](#configurar-samba)
+		- [Compartir carpetas](#compartir-carpetas)
+		- [Establecer contraseña](#establecer-contraseña)
 	- [Servidor DLNA](#servidor-dlna)
 	- [Centro de descargas](#centro-de-descargas)
 		- [Instalar Transmission](#instalar-transmission)
@@ -360,6 +365,66 @@ autocutsel -fork
 export XKL_XMODMAP_DISABLE=1
 /etc/X11/Xsession
 ```
+
+
+### Compartir ficheros con samba
+
+Hasta ahora para copiar archivos a la Raspberry Pi teníamos que usar el comando `scp` o el protocolo *SFTP*, pero gracias a *samba* no solo podemos acceder más cómodamente a nuestros archivos, sino transformar nuestra Raspberry Pi en un servidor NAS. 
+
+#### Instalar samba
+
+Para instalar los paquetes necesarios ejecutaremos  
+`sudo apt-get install samba samba-common-bin`
+
+#### Configurar samba
+
+Si nos fijamos en el fichero de configuración veremos que está muy bien comentado  
+`sudo nano /etc/samba/smb.conf`
+
+Hay dos parámetros importantes cuyos valores deben ser:
+
+```
+workgroup = WORKGROUP
+wins support = yes
+```
+
+- **workgroup**  
+Es el grupo de trabajo de la red, y por defecto viene el que Windows da de serie a sus redes.
+- **wins support**  
+Aparecerá comentado, con una almohadilla delante. Es muy importante que descomentes esa línea (quita la #). Da igual si vas a utilizarlo o no, eso ya lo decides tú poniendo yes o no, pero la configuración del samba debe leer ese parámetro para que todo funcione correctamente.
+
+#### Compartir carpetas
+
+Para compartir carpetas iremos al final del fichero y escribiremos esto:
+
+```
+[UsbDisk1]
+	comment=USB HDD 1 in Raspberry Pi
+	path=/media/disk1
+	browseable=yes
+	writeable=yes
+	create mask=0775
+	directory mask=0775
+	only guest=no
+```
+
+- Donde la primera línea define el nombre que tendrá nuestra carpeta compartida en la red, en mi caso *UsbDisk1*.
+- **comment** puede ser cualquier cosa que quieras que defina a la carpeta.
+- **path** es la ruta de la carpeta que quieres compartir, como yo comparto todo el disco duro USB especifico dónde está montado.
+- **browseable** para que se pueda navegar por los subdirectorios.
+- **writeable** para poder leer y escribir.
+- **create mask** y **directory mask** definen los permisos que se aplican a los ficheros y directorios nuevos.
+- **only guest** permite acceder como usuario anónimo o no.
+
+Para compartir más carpetas escribir todo el bloque de nuevo con los datos de las nuevas carpetas a compartir.
+
+#### Establecer contraseña
+
+Por último, vamos a darle una contraseña a nuestro usuario *pi*, la lógica diría que es la misma que para acceder al sistema, pero no, samba tiene su propia gestión de contraseñas así que hay asignarle una a cada usuario, puedes utilizar la misma para no liarte u otra diferente por seguridad:  
+`sudo smbpasswd -a pi`
+
+Para terminar vamos a reiniciar el servicio para que todos los cambios surjan efecto:  
+`sudo service smbd restart`
 
 
 ### Servidor DLNA
