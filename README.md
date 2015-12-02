@@ -163,6 +163,8 @@ Y adaptar el contenido:
 ```
 auto lo
 iface lo inet loopback
+
+auto eth0
 iface eth0 inet dhcp
 
 auto wlan0
@@ -185,6 +187,7 @@ Si lo que queremos es que la IP sea estática, el contenido del archivo deberá 
 auto lo
 iface lo inet loopback
 
+auto eth0
 iface eth0 inet static
 address 192.168.1.50
 netmask 255.255.255.0
