@@ -48,6 +48,7 @@ Raspberry Pi Start Guide
 	- [Comandos de búsqueda](#comandos-de-búsqueda)
 	- [Otros comandos útiles](#otros-comandos-útiles)
 - [Alias](#alias)
+- [Backup & Restore](#backup--restore)
 
 
 
@@ -81,7 +82,9 @@ Si usamos Mac, ir a *Disk Utility*, buscar la tarjeta SD y ver el número de dis
 Desmontar la partición con *Unmount*. No con *Eject*, o sino deberemos montar la tarjeta de nuevo.  
 Y finalmente, desde el terminal ejecutar  
 `sudo dd bs=1m if=path_of_your_image.img of=/dev/rdiskn`  
-donde `n` es el número de disco que hemos visto anteriormente.
+donde *n* es el número de disco que hemos visto anteriormente.
+
+En caso de obtener un error parecido a `dd: bs: illegal numeric value` poner el valor del parámetro `bs=1M`. Esto puede ocurrir dependiendo de si tenemos *GNU coreutils* instalado o no.
 
 Finalizados estos pasos, ya podemos insertar la tarjeta de memoria en la Raspberry Pi e iniciarla.
 
@@ -427,6 +430,7 @@ Para terminar vamos a reiniciar el servicio para que todos los cambios surjan ef
 `sudo service smbd restart`
 
 
+
 ### Servidor DLNA
 
 Uno de los usos que se le puede dar a la Raspberry Pi, es como servidor DLNA, para después podernos conectar desde una Smart TV, o desde cualquier otro dispositivo y ver el contenido multimedia.  
@@ -596,6 +600,7 @@ Para ver el historial de comandos ejecutados en el terminal
 `history`
 
 
+
 Alias
 -----
 
@@ -614,3 +619,21 @@ alias packages='dpkg -l'
 Y simplemente escribiendo en el terminal `temperature`, `space` o `packages` obtendríamos el mismo resultado que ejecutando la instrucción más compleja.  
 Finalmente recargarlo para que los cambios surjan efecto  
 `source ~/.bashrc`
+
+
+
+Backup & Restore
+----------------
+
+Realizar toda esta configuración y llegar a tener nuestra Raspberry Pi como nos gusta puede ser una inversión de tiempo considerable, con lo que realizar una copia de seguridad de todo el contenido de nuestra tarjeta SD es más que aconsejable.  
+Para ello, desde nuestro Mac, tenemos que averiguar el identificador del disco, y para ello o usamos la aplicación *Disk Utility* o el comando `sudo diskutil list`
+
+Una vez tenemos la tarjeta identificada, realizamos la copia de seguridad con el comando  
+`sudo dd bs=4m if=/dev/rdiskn of=path_of_your_image.img`
+
+Y en caso de querer clonar la tarjeta, o restaurar en caso de fallo, usaríamos  
+`sudo dd bs=4m if=path_of_your_image.img of=/dev/rdiskn`
+
+Donde *n* de *rdiskn* es el número de disco que hemos localizado anteriormente.
+
+En caso de obtener un error parecido a `dd: bs: illegal numeric value` poner el valor del parámetro `bs=4M`. Esto puede ocurrir dependiendo de si tenemos *GNU coreutils* instalado o no.
