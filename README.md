@@ -42,6 +42,7 @@ Raspberry Pi Start Guide
 	- [Centro de descargas](#centro-de-descargas)
 		- [Instalar Transmission](#instalar-transmission)
 		- [Configurar Transmission](#configurar-transmission)
+	- [Medir ancho de banda](#medir-ancho-de-banda)
 - [Comandos básicos que hay que conocer](#comandos-básicos-que-hay-que-conocer)
 	- [Mostrar información sobre el hardware](#mostrar-información-sobre-el-hardware)
 	- [Los comandos más importantes](#los-comandos-más-importantes)
@@ -130,8 +131,12 @@ Es fundamental activarlo para poder acceder a la Raspberry Pi por red sin necesi
 
 ### Actualización de software
 
-Para actualizar el software, usar el comando siguiente. Puede tardar un rato.  
-`sudo apt-get update && sudo apt-get upgrade`
+Para actualizar el software a las últimas versiones  
+`sudo apt-get update && sudo apt-get upgrade`   
+Y si además queremos actualizar los posibles cambios de dependencias  
+`sudo apt-get update && sudo apt-get dist-upgrade`  
+Podemos consultar más opciones con  
+`man apt-get`
 
 #### Actualización del Kernel
 
@@ -228,7 +233,7 @@ Para montar los discos duros al inicio, hay que modificar el archivo `/etc/fstab
 `sudo nano /etc/fstab`
 
 En mi caso, he añadido dos discos duros formateados en NTFS, para facilitar la conexión entre diferentes dispositivos y sistemas operativos.  
-Para montar un disco, se puede hacer a partir del dispositivo, que encontraremos en `/dev/...` si ejecutamos `sudo fdisk -l`  
+Para montar un disco, se puede hacer a partir del dispositivo, que encontraremos en `/dev/...` si ejecutamos `diskutil list`  
 Pero para asegurar que la unidad que se va a montar es una en concreto, se puede hacer a partir del UUID del dispositivo. Si ejecutamos `sudo blkid`, o `ls -laF /dev/disk/by-uuid/`, veremos una lista de todos los dispositivos con sus identificadores.
 
 ##### Permisos
@@ -284,7 +289,9 @@ Permitimos todos los puertos de la red local
 Permitimos el puerto web a todo el mundo  
 `sudo ufw allow 80`  
 Habilitamos el firewall  
-`sudo ufw enable`
+`sudo ufw enable`  
+Podemos consultar más opciones con  
+`man ufw`
 
 
 ### Baneador de IPs
@@ -296,6 +303,9 @@ sudo apt-get install fail2ban
 sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 sudo service fail2ban restart
 ```
+
+Podemos consultar más opciones con  
+`man fail2ban`
 
 
 ### Servidor VNC
@@ -369,6 +379,9 @@ export XKL_XMODMAP_DISABLE=1
 /etc/X11/Xsession
 ```
 
+Podemos consultar más opciones con  
+`man vncserver`
+
 
 ### Compartir ficheros con samba
 
@@ -427,8 +440,9 @@ Por último, vamos a darle una contraseña a nuestro usuario *pi*, la lógica di
 `sudo smbpasswd -a pi`
 
 Para terminar vamos a reiniciar el servicio para que todos los cambios surjan efecto:  
-`sudo service smbd restart`
-
+`sudo service smbd restart`  
+Podemos consultar más opciones con  
+`man smbd`
 
 
 ### Servidor DLNA
@@ -471,7 +485,9 @@ Por último, debemos reiniciar el servidor DLNA
 `sudo service minidlna restart`  
 y forzar la búsqueda de contenido  
 `sudo service minidlna force-reload`  
-En la documentación, pone que se puede forzar la búsqueda de contenido con el comando `minidlnad -R`, pero yo lo he probado y no funciona.
+En la documentación, pone que se puede forzar la búsqueda de contenido con el comando `minidlnad -R`, pero yo lo he probado y no funciona.  
+Podemos consultar más opciones con  
+`man minidlna`
 
 
 ### Centro de descargas
@@ -535,7 +551,19 @@ Con toda la configuración terminada, ya se puede iniciar el servicio
 
 Y se puede acceder vía web a través de la dirección  
 `http://ip_address_of_the_raspberry:9091`  
-y el usuario y password por defecto es `transmission:transmission`
+y el usuario y password por defecto es `transmission:transmission`  
+Podemos consultar más opciones con  
+`man transmission-daemon`
+
+
+### Medir ancho de banda
+
+Descargamos un script en Python que se encargará de medir la velocidad de la red  
+`wget -O speedtest-cli https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py`  
+Damos permisos de ejecución  
+`chmod +x speedtest-cli`  
+Y ejecutamos el test  
+`./speedtest-cli`
 
 
 
@@ -626,14 +654,21 @@ Backup & Restore
 ----------------
 
 Realizar toda esta configuración y llegar a tener nuestra Raspberry Pi como nos gusta puede ser una inversión de tiempo considerable, con lo que realizar una copia de seguridad de todo el contenido de nuestra tarjeta SD es más que aconsejable.  
-Para ello, desde nuestro Mac, tenemos que averiguar el identificador del disco, y para ello o usamos la aplicación *Disk Utility* o el comando `sudo diskutil list`
+Para ello, desde nuestro Mac, tenemos que averiguar el identificador del disco, y para ello o usamos la aplicación *Disk Utility* o el comando `diskutil list`
 
 Una vez tenemos la tarjeta identificada, realizamos la copia de seguridad con el comando  
-`sudo dd bs=4m if=/dev/rdiskn of=path_of_your_image.img`
+`sudo dd bs=1m if=/dev/rdiskn of=path_of_your_image.img`
 
-Y en caso de querer clonar la tarjeta, o restaurar en caso de fallo, usaríamos  
-`sudo dd bs=4m if=path_of_your_image.img of=/dev/rdiskn`
+Y en caso de querer clonar la tarjeta, o restaurar en caso de fallo, deberíamos tener la nueva tarjeta formateada en FAT32, y para poder formatearla, primero debemos localizar las unidades montadas  
+`diskutil list`  
+desmontarlas (repetir para cada unidad montada)  
+`diskutil unmount /dev/disknsx # por ejemplo /dev/disk2s5`  
+ahora ya podemos formatear  
+`sudo newfs_msdos -F 32 /dev/diskn`  
+y para restaurar la imagen usaríamos  
+`sudo dd bs=1m if=path_of_your_image.img of=/dev/rdiskn`
 
 Donde *n* de *rdiskn* es el número de disco que hemos localizado anteriormente.
 
-En caso de obtener un error parecido a `dd: bs: illegal numeric value` poner el valor del parámetro `bs=4M`. Esto puede ocurrir dependiendo de si tenemos *GNU coreutils* instalado o no.
+En caso de obtener un error parecido a `dd: bs: illegal numeric value` poner el valor del parámetro `bs=1M`. Esto puede ocurrir dependiendo de si tenemos *GNU coreutils* instalado o no.  
+Si durante el proceso de ejecución del comando `dd` queremos saber el estado, podemos pulsar <kbd>CONTROL</kbd> + <kbd>T</kbd>
