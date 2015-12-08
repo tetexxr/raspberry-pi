@@ -4,6 +4,7 @@ Raspberry Pi Start Guide
 [comment]: # (Markdown wiki https://es.wikipedia.org/wiki/Markdown and another good explanation http://markdown.es/sintaxis-markdown)
 
 
+
 Índice
 ------
 
@@ -50,6 +51,10 @@ Raspberry Pi Start Guide
 	- [Otros comandos útiles](#otros-comandos-útiles)
 - [Alias](#alias)
 - [Backup & Restore](#backup--restore)
+	- [Reducir la imagen al espacio usado](#reducir-la-imagen-al-espacio-usado)
+		- [Crear dispositivo loopback](#crear-dispositivo-loopback)
+		- [Cambiar el tamaño de la partición usando GParted](#cambiar-el-tamaño-de-la-partición-usando-gparted)
+		- [Encogiendo la imagen](#encogiendo-la-imagen)
 
 
 
@@ -76,12 +81,12 @@ Instalar sistema operativo
 --------------------------
 
 Estos son los pasos básicos que debemos seguir para configurar inicialmente una **Raspberry Pi 2 Model B** con la distribución **Raspbian Jessie** (basado en la distribución de Linux Debian Jessie), y con un mínimo de seguridad para que no nos entren hasta la cocina.  
-Para descargarla se puede hacer desde [este enlace](https://www.raspberrypi.org/downloads/raspbian/), y seguir los pasos descritos [aquí](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) para preparar la imagen del sistema operativo en la tarjeta SD.
+Para descargarla se puede hacer desde [aquí](https://www.raspberrypi.org/downloads/raspbian/), y seguir los pasos descritos [aquí](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) para preparar la imagen del sistema operativo en la tarjeta SD.
 
 La tarjeta SD debe estar formateada en FAT32.  
 Si usamos Mac, ir a *Disk Utility*, buscar la tarjeta SD y ver el número de disco que aparece en la parte inferior izquierda. Será algo como *disk2*.  
 Desmontar la partición con *Unmount*. No con *Eject*, o sino deberemos montar la tarjeta de nuevo.  
-Y finalmente, desde el terminal ejecutar  
+Y finalmente, desde el terminal ejecutar:  
 `sudo dd bs=1m if=path_of_your_image.img of=/dev/rdiskn`  
 donde *n* es el número de disco que hemos visto anteriormente.
 
@@ -93,33 +98,36 @@ Finalizados estos pasos, ya podemos insertar la tarjeta de memoria en la Raspber
 Configuración
 -------------
 
-### Averiguar la dirección ip de la Raspberry Pi 2
+### Averiguar la dirección IP de la Raspberry Pi 2
 
-Desde la terminal del Mac  
+Desde la terminal del Mac:  
 `sudo nmap -sP 192.168.1.0/24`  
-En caso de no tener instalado nmap, podemos instalar el paquete con Home Brew  
-`brew install nmap`
+En caso de no tener instalado nmap, podemos instalar el paquete con Home Brew:  
+`brew install nmap`  
+Podemos consultar el manual con `man nmap`.
 
 
 ### Conectarse por ssh
 
-El usuario es “pi” y la contraseña inicial es “raspberry”  
-`ssh pi@ip_address_of_the_raspberry`
+El usuario es “pi” y la contraseña inicial es “raspberry”:  
+`ssh pi@ip_address_of_the_raspberry`  
+Podemos consultar el manual con `man ssh`.
 
 
 ### Cambiar el password del usuario "pi"
 
-No es aconsejable dejar el usuario "pi" con el password por defecto  
+No es aconsejable dejar el usuario "pi" con el password por defecto:  
 `passwd`
+Podemos consultar el manual con `man passwd`.
 
 
 ### Configuración general
 
-Hay un par de opciones de configuración que hay cambiar desde la configuración general  
+Hay un par de opciones de configuración que hay cambiar desde la configuración general:  
 `sudo raspi-config`
 
 - **Expand Filesystem**  
-Extiende el espacio utilizable por el sistema operativo a toda la capacidad de la microSD. Tras reiniciar, se puede verificar que el espacio es correcto con el comando `df -h`
+Extiende el espacio utilizable por el sistema operativo a toda la capacidad de la microSD. Tras reiniciar, se puede verificar que el espacio es correcto con el comando `df -h`.
 - **Internationalisation Options > Change Timezone**  
 Nuestra Raspberry Pi está configurada para detectar la fecha y hora desde Internet automáticamente cuando se enciende, pero la primera vez que arranca, le tendremos que indicar la zona horaria en la que nos encontramos.
 - **Advanced Options > Memory Split**  
@@ -131,20 +139,19 @@ Es fundamental activarlo para poder acceder a la Raspberry Pi por red sin necesi
 
 ### Actualización de software
 
-Para actualizar el software a las últimas versiones  
+Para actualizar el software a las últimas versiones:  
 `sudo apt-get update && sudo apt-get upgrade`   
-Y si además queremos actualizar los posibles cambios de dependencias  
+Y si además queremos actualizar los posibles cambios de dependencias:  
 `sudo apt-get update && sudo apt-get dist-upgrade`  
-Podemos consultar más opciones con  
-`man apt-get`
+Podemos consultar el manual con `man apt-get`.
 
 #### Actualización del Kernel
 
-Para ver la versión del kernel  
+Para ver la versión del Kernel:  
 `uname -r`  
-Si es muy antigua se puede actualizar  
+Si es muy antigua se puede actualizar:  
 `sudo rpi-update`  
-Y reiniciar para que los cambios surjan efecto  
+Y reiniciar para que los cambios surjan efecto:  
 `sudo reboot`
 
 
@@ -155,8 +162,8 @@ Para el adaptador Wi-Fi escogí el EDIMAX EW-7811Un, 150 Mbit/s, ya que no reque
 
 #### Configuración Wi-Fi en Raspbian
 
-Raspbian reconoce que el adaptador tan pronto como se inserta. Se puede comprobar esto fácilmente utilizando el comando `dmesg`  
-Después de que el USB se reconoce, debería aparecer un nuevo dispositivo de red, y lo podemos ver con el uso de `ifconfig`  
+Raspbian reconoce que el adaptador tan pronto como se inserta. Se puede comprobar esto fácilmente utilizando el comando `dmesg`.  
+Después de que el USB se reconoce, debería aparecer un nuevo dispositivo de red, y lo podemos ver con el uso de `ifconfig`.
 
 #### Desactivar ahorro de energía
 
@@ -168,7 +175,7 @@ Y añadir a ese archivo el contenido siguiente:
 
 #### Establecer la conexión (DHCP)
 
-Para establecer una conexión con nuestra red inalámbrica debemos editar el archivo `/etc/network/interfaces`  
+Para establecer una conexión con nuestra red inalámbrica debemos editar el archivo de configuración de red:  
 `sudo nano /etc/network/interfaces`
 
 Y adaptar el contenido:
@@ -189,8 +196,10 @@ wpa-ssid "YOUR-WIFI-NAME"
 wpa-psk "YOUR-WIFI-PASSWORD"
 ```
 
-Por último, guardamos los cambios y reiniciamos el servicio de red.  
+Por último, guardamos los cambios y reiniciamos el servicio de red:  
 `sudo service networking restart`
+
+En la configuración de red anterior, hay un par de temas importantes a remarcar. Cuando se usa el `auto` para inicializar una interfaz, lo que se indica es que esa interfaz de red se inicializa al iniciar el sistema, y cuando se usa el `allow-hotplug` se inicializa la interfaz de red cuando el Kernel detecta un evento de cambio desde la interfaz, como puede ser conectar un cable de red, o conectar un adaptador de Wi-Fi en el puerto USB.
 
 #### Dirección IP estática (opcional)
 
@@ -224,8 +233,7 @@ wpa-psk "YOUR-WIFI-PASSWORD"
 #### Discos duros sin alimentación externa
 
 Para conectar pendrives, no hay problema, pero para conectar un disco duro que requiera alimentación por el puerto USB deberemos realizar un pequeño cambio, ya que por defecto la Raspberry Pi no da suficiente potencia por el puerto USB.  
-Deberemos modificar el archivo `/boot/config.txt` y añadir `max_usb_current=1` al final de todo.  
-`sudo nano /boot/config.txt`
+Deberemos modificar el archivo `/boot/config.txt` mediante el comando `sudo nano /boot/config.txt` y añadir `max_usb_current=1` al final de todo.
 
 #### Auto mount
 
@@ -233,7 +241,7 @@ Para montar los discos duros al inicio, hay que modificar el archivo `/etc/fstab
 `sudo nano /etc/fstab`
 
 En mi caso, he añadido dos discos duros formateados en NTFS, para facilitar la conexión entre diferentes dispositivos y sistemas operativos.  
-Para montar un disco, se puede hacer a partir del dispositivo, que encontraremos en `/dev/...` si ejecutamos `diskutil list`  
+Para montar un disco, se puede hacer a partir del dispositivo, que encontraremos en `/dev/...` si ejecutamos `diskutil list`.  
 Pero para asegurar que la unidad que se va a montar es una en concreto, se puede hacer a partir del UUID del dispositivo. Si ejecutamos `sudo blkid`, o `ls -laF /dev/disk/by-uuid/`, veremos una lista de todos los dispositivos con sus identificadores.
 
 ##### Permisos
@@ -250,7 +258,7 @@ Permite cambiar los permisos de acceso de un fichero o directorio.
 Permite cambiar el grupo de usuarios de un archivo o directorio.
 
 Una parte complicada a la hora de montar discos formateados en NTFS es el tema de los permisos, ya que con `chmod` no se pueden cambiar, y para mi gusto, usar `chown` no es bueno, ya que el propietario de los directorios no tiene porque cambiar por querer asignar permisos.  
-Como me imagino que terminaré teniendo varios usuarios que necesitarán acceso a estos discos, crearé un grupo *ntfs* para darle permisos, e iré añadiendo usuarios a este grupo conforme los vaya necesitando
+Como me imagino que terminaré teniendo varios usuarios que necesitarán acceso a estos discos, crearé un grupo *ntfs* para darle permisos, e iré añadiendo usuarios a este grupo conforme los vaya necesitando:
 
 ```
 sudo groupadd ntfs            # creación del grupo
@@ -260,7 +268,7 @@ id -nG pi                     # grupos a los que pertenece el usuario pi
 ```
 
 Este grupo solo lo usaré en uno de los discos, que contendrá datos para modificar, el otro, que es solo de lectura, lo montaré con a configuración por defecto.  
-A continuación, ya podemos modificar el arthivo `/etc/fstab` añadiendo algo parecido a
+A continuación, ya podemos modificar el arthivo `/etc/fstab` añadiendo algo parecido a:
 
 ```
 UUID=843671A53671993E   /media/disk1 ntfs-3g defaults,nofail 0       0
@@ -268,7 +276,7 @@ UUID=8EA0B1A2A0B19167   /media/disk2 ntfs-3g rw,auto,uid=pi,gid=ntfs,fmask=0002,
 ```
 
 Yo he usado `ntfs-3g` y no `ntfs` para tener acceso de lectura y escritura, y he puesto `nofail` para no obtener errores al iniciar en caso de que los discos no estén conectados.  
-Para forzar el montaje de los discos podemos ejecutar `sudo mount -a`
+Para forzar el montaje de los discos podemos ejecutar `sudo mount -a`.
 
 Llegados a este punto, tenemos los dos discos duros montados y funcionando. Pero al reiniciar la Raspberry Pi, nos podemos encontrar que los discos duros ya no están montados. Esto puede ocurrir si el sistema operativo de inicia antes que la detección de discos.  
 Para solucionarlo, tenemos la opción de retardar el inicio añadiendo un pequeño delay. Modificaremos el archivo `/boot/cmdline.txt` ejecutando `sudo nano /boot/cmdline.txt` y añadiremos al final de todo `rootdelay=5`. Con esto el problema debería quedar resuelto.
@@ -280,18 +288,17 @@ Instalación de software
 
 ### Firewall UFW
 
-Instalamos el paquete para el firewall  
+Instalamos el paquete para el firewall:  
 `sudo apt-get install ufw`  
-Permitimos el puerto 22 a todo el mundo  
+Permitimos el puerto 22 a todo el mundo:  
 `sudo ufw allow 22`  
-Permitimos todos los puertos de la red local  
+Permitimos todos los puertos de la red local:  
 `sudo ufw allow from 192.168.1.0/24`  
-Permitimos el puerto web a todo el mundo  
+Permitimos el puerto web a todo el mundo:  
 `sudo ufw allow 80`  
-Habilitamos el firewall  
+Habilitamos el firewall:  
 `sudo ufw enable`  
-Podemos consultar más opciones con  
-`man ufw`
+Podemos consultar el manual con `man ufw`.
 
 
 ### Baneador de IPs
@@ -304,35 +311,34 @@ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 sudo service fail2ban restart
 ```
 
-Podemos consultar más opciones con  
-`man fail2ban`
+Podemos consultar el manual con `man fail2ban`.
 
 
 ### Servidor VNC
 
 #### Instalación
 
-Para acceder a la Raspberry Pi 2 mediante un escritorio remoto mediante VNC hay que instalar el servidor VNC  
+Para acceder a la Raspberry Pi 2 mediante un escritorio remoto mediante VNC hay que instalar el servidor VNC:  
 `sudo apt-get install tightvncserver`  
-Para iniciar una conexión  
+Para iniciar una conexión:  
 `vncserver :1`  
-O bien especificando los valores de geometry a la resolución de nuestra pantalla del ordenador  
+O bien especificando los valores de geometry a la resolución de nuestra pantalla del ordenador:  
 `vncserver :1 -geometry 1024x600 -depth 16`  
 El 1 es el número de escritorio que le asignamos. Nos pedirá que pongamos una contraseña entre 6 y 8 caracteres y ponemos **NO** a la visualización de dicha contraseña.
 
-Para detener el servidor VNC  
+Para detener el servidor VNC:  
 `vncserver -kill :1`
 
 #### Auto inicio
 
-Para hacer que se ejecute el VNCServer cada vez que se inicie la Raspberry Pi, deberemos crear el siguiente archivo
+Para hacer que se ejecute el VNCServer cada vez que se inicie la Raspberry Pi, deberemos crear el siguiente archivo:
 
 ```
 cd /home/pi/.config/autostart
 sudo nano tightvnc.desktop
 ```
 
-Ponemos lo siguiente dentro del archivo y guardamos
+Ponemos lo siguiente dentro del archivo y guardamos:
 
 ```
 [Desktop Entry]
@@ -346,24 +352,24 @@ La próxima vez que enciendas la Raspberry el servidor VNC se reiniciará autom�
 
 #### Conexión remota
 
-Para conectarse, desde un Mac solo hay que ir al Finder, "Go", "Connect to server..." (o Command + K), y escribir  
+Para conectarse, desde un Mac solo hay que ir al Finder, "Go", "Connect to server..." (o Command + K), y escribir:  
 `vnc://ip_address_of_the_raspberry:5901`  
-O desde el terminal  
+O desde el terminal:  
 `open vnc://ip_address_of_the_raspberry:5901`
 
 A mi personalmente me gusta más el **RealVNC Viewer** que se puede descargar [aquí](http://www.realvnc.com/download/viewer/).  
-En la casilla *VNC Server* pondremos la dirección IP de la Raspberry Pi y el número de escritorio  
+En la casilla *VNC Server* pondremos la dirección IP de la Raspberry Pi y el número de escritorio:  
 `ip_address_of_the_raspberry:1`  
-Aparecerá una ventana informando de que la conexión no está encriptada, damos a Continue, y después nos pedirá la contraseña que hemos establecido previamente cuando instalamos el VNCServer en la Raspberry Pi.  
+Aparecerá una ventana informando de que la conexión no está encriptada, damos a *Continue*, y después nos pedirá la contraseña que hemos establecido previamente cuando instalamos el VNCServer en la Raspberry Pi.  
 Y finalmente tendremos el escritorio de nuestra Raspberry Pi en pantalla para controlarla con el ordenador.
 
 #### Clipboard
 
-Para habilitar el clipboard y tener funciones como cut, paste, y copy, debemos instalar el paquete autocutsell  
+Para habilitar el clipboard y tener funciones como cut, paste, y copy, debemos instalar el paquete autocutsell:  
 `sudo apt-get install autocutsel`  
-A continuación, hay que modificar el archivo `/home/pi/.vnc/xstartup` con el comando  
+A continuación, hay que modificar el archivo `/home/pi/.vnc/xstartup` con el comando:  
 `nano /home/pi/.vnc/xstartup`  
-y añadir la línea `autocutsel -fork`. Debe quedar algo parecido a
+y añadir la línea `autocutsel -fork`. Debe quedar algo parecido a:
 
 ```
 #!/bin/sh
@@ -379,8 +385,7 @@ export XKL_XMODMAP_DISABLE=1
 /etc/X11/Xsession
 ```
 
-Podemos consultar más opciones con  
-`man vncserver`
+Podemos consultar el manual con `man vncserver`.
 
 
 ### Compartir ficheros con samba
@@ -389,12 +394,12 @@ Hasta ahora para copiar archivos a la Raspberry Pi teníamos que usar el comando
 
 #### Instalar samba
 
-Para instalar los paquetes necesarios ejecutaremos  
+Para instalar los paquetes necesarios ejecutaremos:  
 `sudo apt-get install samba samba-common-bin`
 
 #### Configurar samba
 
-Si nos fijamos en el fichero de configuración veremos que está muy bien comentado  
+Si nos fijamos en el fichero de configuración veremos que está muy bien comentado:  
 `sudo nano /etc/samba/smb.conf`
 
 Hay dos parámetros importantes cuyos valores deben ser:
@@ -441,8 +446,7 @@ Por último, vamos a darle una contraseña a nuestro usuario *pi*, la lógica di
 
 Para terminar vamos a reiniciar el servicio para que todos los cambios surjan efecto:  
 `sudo service smbd restart`  
-Podemos consultar más opciones con  
-`man smbd`
+Podemos consultar el manual con `man smbd`.
 
 
 ### Servidor DLNA
@@ -451,9 +455,9 @@ Uno de los usos que se le puede dar a la Raspberry Pi, es como servidor DLNA, pa
 Para ello, existe un servidor muy ligero que podemos instalar:  
 `sudo apt-get install minidlna`
 
-Una vez instalado, hay que configurarlo, y para ello debemos editar el archivo  
+Una vez instalado, hay que configurarlo, y para ello debemos editar el archivo:  
 `sudo nano /etc/minidlna.conf`  
-y modificar las líneas siguientes para que queden así, y el resto de valores los podemos dejar por defecto
+y modificar las líneas siguientes para que queden así, y el resto de valores los podemos dejar por defecto:
 
 ```
 user=minidlna
@@ -481,13 +485,12 @@ Son los directorios que se deben rastrear. Podemos indicar con las letras *V (vi
 - **friendly_name**  
 Es el nombre que veremos desde nuestro Smart TV u otro dispositivo cuando queramos ver el contenido.
 
-Por último, debemos reiniciar el servidor DLNA  
+Por último, debemos reiniciar el servidor DLNA:  
 `sudo service minidlna restart`  
-y forzar la búsqueda de contenido  
+y forzar la búsqueda de contenido:  
 `sudo service minidlna force-reload`  
 En la documentación, pone que se puede forzar la búsqueda de contenido con el comando `minidlnad -R`, pero yo lo he probado y no funciona.  
-Podemos consultar más opciones con  
-`man minidlna`
+Podemos consultar el manual con `man minidlna`.
 
 
 ### Centro de descargas
@@ -496,15 +499,15 @@ Ya que tenemos un ordenador que consume solo 2,5W y que está siempre encendido 
 
 #### Instalar Transmission
 
-Para ello podemos instalar Transmission, un cliente de torrent  
+Para ello podemos instalar Transmission, un cliente de torrent:  
 `sudo apt-get install transmission-daemon`
 
 #### Configurar Transmission
 
-Primero detenemos el servicio  
+Primero detenemos el servicio:  
 `sudo service transmission-daemon stop`
 
-Creamos los directorios necesarios para cuando se está descargando un archivo, para cuando finaliza la descarga, y para el torrent
+Creamos los directorios necesarios para cuando se está descargando un archivo, para cuando finaliza la descarga, y para el torrent:
 
 ```
 sudo mkdir -p /media/hdd/downloading
@@ -512,10 +515,10 @@ sudo mkdir -p /media/hdd/sharing
 sudo mkdir -p /media/hdd/torrents
 ```
 
-Para dar permisos, es suficiente con añadir el usuario *debian-transmission* al grupo *ntfs* que he creado previamente  
+Para dar permisos, es suficiente con añadir el usuario *debian-transmission* al grupo *ntfs* que he creado previamente:  
 `sudo usermod -a -G ntfs debian-transmission`
 
-Para configurar las carpetas de descarga y otros parámetros de funcionamiento, debemos editar el archivo `/etc/transmission-daemon/settings.json` mediante el comando  
+Para configurar las carpetas de descarga y otros parámetros de funcionamiento, debemos editar el archivo de configuración:  
 `sudo nano /etc/transmission-daemon/settings.json`  
 y modificar las siguietes propiedades:
 
@@ -546,23 +549,22 @@ Listado de IPs que pueden acceder. En este caso, lo deshabilito para poder acced
 - **watch-dir, watch-dir-enabled**  
 Directorio que se observará por si se añaden torrents nuevos.
 
-Con toda la configuración terminada, ya se puede iniciar el servicio  
+Con toda la configuración terminada, ya se puede iniciar el servicio:  
 `sudo service transmission-daemon start`
 
-Y se puede acceder vía web a través de la dirección  
+Y se puede acceder vía web a través de la dirección:  
 `http://ip_address_of_the_raspberry:9091`  
-y el usuario y password por defecto es `transmission:transmission`  
-Podemos consultar más opciones con  
-`man transmission-daemon`
+y el usuario y password por defecto es `transmission:transmission`.  
+Podemos consultar el manual con `man transmission-daemon`.
 
 
 ### Medir ancho de banda
 
-Descargamos un script en Python que se encargará de medir la velocidad de la red  
+Descargamos un script en Python que se encargará de medir la velocidad de la red:  
 `wget -O speedtest-cli https://raw.github.com/sivel/speedtest-cli/master/speedtest_cli.py`  
-Damos permisos de ejecución  
+Damos permisos de ejecución:  
 `chmod +x speedtest-cli`  
-Y ejecutamos el test  
+Y ejecutamos el test:  
 `./speedtest-cli`
 
 
@@ -572,59 +574,59 @@ Comandos básicos que hay que conocer
 
 ### Mostrar información sobre el hardware
 
-Para conocer la información hardware general  
+Para conocer la información hardware general:  
 `cat /proc/cpuinfo`  
-Para saber el estado de la memoria  
+Para saber el estado de la memoria:  
 `cat /proc/meminfo`  
-Para ver las particiones de la tarjeta de memoria o el disco duro  
+Para ver las particiones de la tarjeta de memoria o el disco duro:  
 `cat /proc/partitions`  
-Si queremos conocer la versión de nuestra Raspberry Pi  
+Si queremos conocer la versión de nuestra Raspberry Pi:  
 `cat /proc/version`  
-Visualizar todos los dispositivos USB conectados  
+Visualizar todos los dispositivos USB conectados:  
 `lsusb`
 
 
 ### Los comandos más importantes
 
-Para entrar en la ventana de configuración de Raspbian  
+Para entrar en la ventana de configuración de Raspbian:  
 `sudo raspi-config`  
-Si estamos en modo línea de comandos y queremos volver al modo gráfico  
+Si estamos en modo línea de comandos y queremos volver al modo gráfico:  
 `startx`  
-Apagar el dispositivo  
+Apagar el dispositivo:  
 `sudo poweroff` o `sudo shutdown -h`  
-Reiniciar la Raspberry Pi  
+Reiniciar la Raspberry Pi:  
 `sudo reboot` o `sudo shutdown -r now`  
-Para ver la temperatura  
+Para ver la temperatura:  
 `cat /sys/class/thermal/thermal_zone0/temp`  
-Y de una forma más *user friendly*  
+Y de una forma más *user friendly*:  
 `/opt/vc/bin/vcgencmd measure_temp`  
-Para ver los paquetes instalados  
+Para ver los paquetes instalados:  
 `dpkg -l` o `apt --installed list`
 
 
 ### Comandos de búsqueda
 
-Para buscar un tipo de archivo  
+Para buscar un tipo de archivo:  
 `find . -name .DS_Store -type f`  
-Para contar cuantos archivos hay  
+Para contar cuantos archivos hay:  
 `find . -name *.jpg -type f | wc -l`  
-O si es en el mismo directorio  
+O si es en el mismo directorio:  
 `ls *.jpg | wc -l`  
-Y si queremos eliminar archivos a partir de una búsqueda (cuidado con este comando)  
+Y si queremos eliminar archivos a partir de una búsqueda (cuidado con este comando):  
 `find . -name .DS_Store -type f -delete`
 
 
 ### Otros comandos útiles
 
-Para crear un link (enlace o acceso directo) a un directorio  
+Para crear un link (enlace o acceso directo) a un directorio:  
 `ln -s /home/pi/Pictures/ my-pictures`  
-Y a un archivo  
+Y a un archivo:  
 `ln -s /home/pi/Pictures/Background.jpg "My background picture.jpg"`  
-Para listar los procesos que se están ejecutando  
+Para listar los procesos que se están ejecutando:  
 `ps aux`  
-Y con información más completa  
+Y con información más completa:  
 `ps auxwf`  
-Para ver el historial de comandos ejecutados en el terminal  
+Para ver el historial de comandos ejecutados en el terminal:  
 `history`
 
 
@@ -634,9 +636,9 @@ Alias
 
 Algunos comandos pueden resultar incómodos de teclear debido al gran número de parámetros, más aún cuando los usamos muy a menudo.  
 Los alias son códigos mnemotécnicos para acordarnos mejor.  
-Para crearlos, hay que modificar el archivo `~/.bashrc` escribiendo  
+Para crearlos, hay que modificar el archivo:  
 `sudo nano ~/.bashrc`  
-añadiendo nuestros alias al final de todo del archivo. Si por ejemplo nos cuesta acordarnos de como ver la temperatura, o el espacio de las unidades, o los paquetes instalados, podemos tener alias como
+añadiendo nuestros alias al final de todo del archivo. Si por ejemplo nos cuesta acordarnos de como ver la temperatura, o el espacio de las unidades, o los paquetes instalados, podemos tener alias como:
 
 ```
 alias temperature='/opt/vc/bin/vcgencmd measure_temp'
@@ -645,7 +647,7 @@ alias packages='dpkg -l'
 ```
 
 Y simplemente escribiendo en el terminal `temperature`, `space` o `packages` obtendríamos el mismo resultado que ejecutando la instrucción más compleja.  
-Finalmente recargarlo para que los cambios surjan efecto  
+Finalmente recargarlo para que los cambios surjan efecto:  
 `source ~/.bashrc`
 
 
@@ -654,21 +656,100 @@ Backup & Restore
 ----------------
 
 Realizar toda esta configuración y llegar a tener nuestra Raspberry Pi como nos gusta puede ser una inversión de tiempo considerable, con lo que realizar una copia de seguridad de todo el contenido de nuestra tarjeta SD es más que aconsejable.  
-Para ello, desde nuestro Mac, tenemos que averiguar el identificador del disco, y para ello o usamos la aplicación *Disk Utility* o el comando `diskutil list`
+Para ello, desde nuestro Mac, tenemos que averiguar el identificador del disco, y para ello o usamos la aplicación *Disk Utility* o el comando `diskutil list`.
 
-Una vez tenemos la tarjeta identificada, realizamos la copia de seguridad con el comando  
+Una vez tenemos la tarjeta identificada, realizamos la copia de seguridad con el comando:  
 `sudo dd bs=1m if=/dev/rdiskn of=path_of_your_image.img`
 
-Y en caso de querer clonar la tarjeta, o restaurar en caso de fallo, deberíamos tener la nueva tarjeta formateada en FAT32, y para poder formatearla, primero debemos localizar las unidades montadas  
+Y en caso de querer clonar la tarjeta, o restaurar en caso de fallo, deberíamos tener la nueva tarjeta formateada en FAT32, y para poder formatearla, primero debemos localizar las unidades montadas:  
 `diskutil list`  
-desmontarlas (repetir para cada unidad montada)  
+desmontarlas (repetir para cada unidad montada):  
 `diskutil unmount /dev/disknsx # por ejemplo /dev/disk2s5`  
-ahora ya podemos formatear  
+ahora ya podemos formatear:  
 `sudo newfs_msdos -F 32 /dev/diskn`  
-y para restaurar la imagen usaríamos  
+y para restaurar la imagen usaríamos:  
 `sudo dd bs=1m if=path_of_your_image.img of=/dev/rdiskn`
 
 Donde *n* de *rdiskn* es el número de disco que hemos localizado anteriormente.
 
 En caso de obtener un error parecido a `dd: bs: illegal numeric value` poner el valor del parámetro `bs=1M`. Esto puede ocurrir dependiendo de si tenemos *GNU coreutils* instalado o no.  
-Si durante el proceso de ejecución del comando `dd` queremos saber el estado, podemos pulsar <kbd>CONTROL</kbd> + <kbd>T</kbd>
+Si durante el proceso de ejecución del comando `dd` queremos saber el estado, podemos pulsar <kbd>CONTROL</kbd> + <kbd>T</kbd>.
+
+
+### Reducir la imagen al espacio usado
+
+Al crear una imagen con el comando `dd` el resultado será del mismo tamaño que la tarjeta SD. Es decir, si tenemos una tarjeta SD de 8 GB el resultado será un archivo *img* de 8 GB.  
+En el caso de tener una tarjeta de 32 GB o de 64 GB el tema es un poco más crítico, ya que el archivo de imagen ocupará eso mismo y además necesitaremos otra tarjeta del mismo tamaño para poder restaurar la imagen, y muchas veces podemos tener una tarjeta de ese tamaño pero que el contenido de la misma no supere los 4 GB por ejemplo.
+
+Para conseguir esto a partir de una imagen y no morir en el intento, lo vamos a hacer en Linux, ya que todas las herramientas que necesitamos están disponibles allí: GParted, `fdisk` y `truncate`. En este caso, yo he usado la versión 14.14.1 de Ubuntu x64, y para instalar GParted escribimos en el terminal:  
+`sudo apt-get install gparted`
+
+#### Crear dispositivo loopback
+
+GParted es una gran aplicación que puede manejar tablas de particiones y archivos de sistema bastante bien. En este caso vamos a usar GParted para reducir el tamaño del sistema de archivos.  
+GParted opera en los dispositivos, no en archivos simples como imágenes. Es por eso que primero necesitamos crear un dispositivo para la imagen. Haremos esto mediante la funcionalidad loopback de Linux.
+
+Primero habilitaremos loopback si no estaba ya habilitado:  
+`sudo modprobe loop`  
+Ahora ya podemos solicitar un nuevo dispositivo (libre) loopback:  
+`sudo losetup -f`  
+Esto devolverá el path a un dispositivo loopback libre. En este ejemplo es `/dev/loop0`.  
+A continuación, creamos un dispositivo de la imagen:  
+`sudo losetup /dev/loop0 myimage.img`  
+Ahora tenemos un dispositovo `/dev/loop0` que representa a `myimage.img`. Lo que queremos nosotros es acceder a las particiones que hay en la imagen, con lo que tenemos que pedir al Kernel que las cargue también:  
+`sudo partprobe /dev/loop0`  
+Esto debería darnos el dispositivo `/dev/loop0p1` que representa la primera partición en `myimage.img`. Nosotros no lo necesitamos directamente, pero GParted lo requiere.
+
+#### Cambiar el tamaño de la partición usando GParted
+
+A continuación podemos cargar el dispositivo usando GParted:  
+`sudo gparted /dev/loop0`  
+Esto debería mostrar una ventana de GParted, en la que veremos:
+
+- Hay una partición.
+- La partición ocupa todo el disco/dispositivo/imagen.
+- La partición está parcialmente llena.
+
+Queremos cambiar el tamaño de esta partición para que se adapte a su contenido, pero no más que eso.
+
+1. Selecciona la partición y haz clic en *Resize/Move*.  
+2. Arrastra la barra de la derecha a la izquierda tanto como sea posible.  
+Hay que tener en cuenta que a veces GParted necesitará algunos MB adicionales para colocar algunos datos relacionados con el sistema de archivos.  
+3. Finalmente pulsamos *Resize/Move* y volveremos a la ventana de GParted.  
+Observa que hay una parte del disco *unallocated*. Esta parte del disco no será utilizada por la partición, con lo que la podremos eliminar de la imagen. GParted es una herramienta para discos, no hace *shrink* de imágenes, solo particiones, con lo que el *shrink* de la imagen deberemos hacerlo nosotros mismos.  
+4. Pulsar *Apply* en GParted. Ahora es cuando moverá los archivos y finalmente encogerá la partición, con lo que puede tardar algún minuto. Cuando termine, podemos cerrar GParted.
+
+Ahora ya no necesitamos más el dispositivo loopback, con lo que podemos descargarlo:  
+`sudo losetup -d /dev/loop0`
+
+#### Encogiendo la imagen
+
+Ahora que tenemos todos los datos importantes en el comienzo de la imagen es el momento de eliminar ese espacio no usado. Primero tendremos que saber dónde termina nuestra partición y donde empieza el espacio no asignado. Para ello usaremos `fdisk`:  
+`fdisk -l myimage.img`
+
+Y tendremos una salida parecida a esta:
+
+```
+Disk myimage.img: 32.0 GB, 32010928128 bytes
+255 heads, 63 sectors/track, 3891 cylinders, 62521344 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x0009f2d7
+
+      Device Boot      Start         End      Blocks   Id  System
+myimage.img1            8192      131071       61440    c  W95 FAT32 (LBA)
+myimage.img2          131072     8300543     4084736   83  Linux
+```
+
+Hay dos cosas importantes en esta salida:
+
+1. Al principio del disco, hay un pequeño espacio no asignado, y después vienen dos particiones seguidas. La segunda partición termina en el bloque 8300543 (indicado debajo de `End`).  
+Antes había dicho que teníamos solo una partición, cuando realmente tenemos dos. Esto es porque la partición que queremos encoger es la segunda, y el espacio no asignado quedará al final.
+2. El tamaño de bloque es de 512 bytes (mostradas como `sectors of 1 * 512`).
+
+Estos números son importantes para terminar nuestro proceso. El tamaño de bloque (512) suele ser el mismo, pero el bloque en el que termina la partición será distinto en cada caso. Estos números significan que la partición termina en el byte 8300543 * 512 del archivo. Después de esto empieza el espacio no asignado.  
+Para recortar todo este espacio no asignado usaremos el comando `truncate`. A este comando hay que proporcionarle el tamaño del archivo en bytes. El último bloque es el 8300543, y los bloques empiezan a contar en el 0, esto significa que necesitamos (8300543 + 1) * 512 bytes. Esto es importante, ya que sino la partición terminará fuera de la imagen, o estaremos dejando espacio de más. Así que usaremos truncate con estos cálculos:  
+`truncate --size=$[(8300543 + 1) * 512] myimage.img`
+
+Ahora ya tenemos la imagen preparada para restaurar en una tarjeta de menor tamaño.
