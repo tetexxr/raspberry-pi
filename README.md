@@ -44,6 +44,7 @@ Raspberry Pi Start Guide
 		- [Instalar Transmission](#instalar-transmission)
 		- [Configurar Transmission](#configurar-transmission)
 	- [Medir ancho de banda](#medir-ancho-de-banda)
+	- [Kodi](#kodi)
 - [Comandos básicos que hay que conocer](#comandos-básicos-que-hay-que-conocer)
 	- [Mostrar información sobre el hardware](#mostrar-información-sobre-el-hardware)
 	- [Los comandos más importantes](#los-comandos-más-importantes)
@@ -140,19 +141,20 @@ Es fundamental activarlo para poder acceder a la Raspberry Pi por red sin necesi
 ### Actualización de software
 
 Para actualizar el software a las últimas versiones:  
-`sudo apt-get update && sudo apt-get upgrade`   
+`sudo apt-get update && sudo apt-get upgrade`  
 Y si además queremos actualizar los posibles cambios de dependencias:  
 `sudo apt-get update && sudo apt-get dist-upgrade`  
 Podemos consultar el manual con `man apt-get`.
 
 #### Actualización del Kernel
 
-Para ver la versión del Kernel:  
+Para ver la versión del Kernel (o del firmware):  
 `uname -r`  
 Si es muy antigua se puede actualizar:  
 `sudo rpi-update`  
 Y reiniciar para que los cambios surjan efecto:  
-`sudo reboot`
+`sudo reboot`  
+No se recomienda usar estos comandos, ya que en un 99% de los casos con usar `apt-get upgrade` hay suficiente.
 
 
 ### Red
@@ -566,6 +568,84 @@ Damos permisos de ejecución:
 `chmod +x speedtest-cli`  
 Y ejecutamos el test:  
 `./speedtest-cli`
+
+
+### Kodi
+
+Kodi (antes conocido como "Xbox Media Center" o XBMC) es un centro multimedia de entretenimiento multiplataforma.  
+Kodi soporta una amplia gama de formatos multimedia, e incluye características tales como listas de reproducción, visualizaciones de audio, presentación de diapositivas, reportes del clima y ampliación de funciones mediante plug-ins. Como Media Center, Kodi puede reproducir la mayoría de los formatos de audio y vídeo (además de ver subtítulos y resincronizar éstos y el audio en caso de delay), así como mostrar imágenes prácticamente de cualquier fuente, incluidos CD, DVD, dispositivos de almacenamiento masivo, Internet y LAN shares.
+
+Para instalar Kodi 15.2RC3 para Jessie, hay que ejecutar en el terminal:
+
+```
+wget http://steinerdatenbank.de/software/kodi-15-jessie.tar.gz
+tar -xzf kodi-15-jessie.tar.gz
+cd kodi-15-jessie
+sudo ./install
+```
+
+Es recomendable excluir Kodi de ser actualizado automáticamente en Raspbian a causa de las nuevas actualizaciones de Kodi que pueden venir por la ejecución del comando `dist-upgrade` ya que estas pueden hacer que Kodi se rompa o deje de iniciarse correctamente.  
+Para excluirlo ejecutar:  
+`sudo apt-mark hold kodi`
+
+Para poder usar el mando a distancia de la tele hay que instalar libcec3:  
+`sudo apt-get install libcec3`
+
+Si quisieramos desinstalarlo todo, deberíamos ejecutar:
+
+```
+sudo dpkg -r libplatform1
+sudo dpkg -r libcec3
+sudo dpkg -r kodi
+```
+
+Si estamos instalando Kodi por primera vez, debemos añadir algunas configuraciones a nuestro sistema.  
+Hay que añadir el grupo *input* en caso de que no exista:  
+`sudo addgroup --system input`
+Hay que crear y editar el siguiente archivo:  
+`sudo nano /etc/udev/rules.d/99-input.rules`  
+Y añadir el contenido:
+
+```
+SUBSYSTEM==input, GROUP=input, MODE=0660
+KERNEL==tty[0-9]*, GROUP=tty, MODE=0660
+```
+
+Crear y editar este otro archivo:  
+`sudo nano /etc/udev/rules.d/10-permissions.rules`  
+Y añadir el contenido:
+
+```
+# input
+KERNEL==mouse*|mice|event*,   MODE=0660, GROUP=input
+KERNEL==ts[0-9]*|uinput,      MODE=0660, GROUP=input
+KERNEL==js[0-9]*,             MODE=0660, GROUP=input
+# tty
+KERNEL==tty[0-9]*,            MODE=0666
+# vchiq
+SUBSYSTEM==vchiq,             MODE=0660, GROUP=video
+```
+
+Hay que ejecutar estos comandos para el usuario *pi*, en caso de que no lo hayas cambiado:
+
+```
+sudo usermod -a -G audio pi
+sudo usermod -a -G video pi
+sudo usermod -a -G input pi
+sudo usermod -a -G dialout pi
+sudo usermod -a -G plugdev pi
+sudo usermod -a -G tty pi
+```
+
+Y asignar más memoria para la GPU editando el archivo:  
+`sudo nano /boot/config.txt`  
+añadiendo o modificando el siguiente valor:  
+`gpu_mem=256`
+
+Para iniciarlo debemos ejecutar:  
+`kodi-standalone`  
+O para iniciarlo en background:  
+`kodi-standalone &`
 
 
 
