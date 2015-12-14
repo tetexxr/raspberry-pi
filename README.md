@@ -15,6 +15,7 @@ Raspberry Pi Start Guide
 	- [Conectarse por ssh](#conectarse-por-ssh)
 	- [Cambiar el password del usuario “pi”](#cambiar-el-password-del-usuario-pi)
 	- [Configuración general](#configuración-general)
+	- [Idioma](#idioma)
 	- [Actualización de software](#actualización-de-software)
 		- [Actualización del Kernel](#actualización-del-kernel)
 	- [Red](#red)
@@ -129,19 +130,56 @@ Hay un par de opciones de configuración que hay cambiar desde la configuración
 
 - **Expand Filesystem**  
 Extiende el espacio utilizable por el sistema operativo a toda la capacidad de la microSD. Tras reiniciar, se puede verificar que el espacio es correcto con el comando `df -h`.
-- **Internationalisation Options > Change Timezone**  
-Nuestra Raspberry Pi está configurada para detectar la fecha y hora desde Internet automáticamente cuando se enciende, pero la primera vez que arranca, le tendremos que indicar la zona horaria en la que nos encontramos.
+- **Internationalisation Options**  
+	- **Change Locale**  
+	Permite cambiar el idioma. Yo he asignado *en-US.UTF8*.  
+	- **Change Timezone**  
+	Nuestra Raspberry Pi está configurada para detectar la fecha y hora desde Internet automáticamente cuando se enciende, pero la primera vez que arranca, le tendremos que indicar la zona horaria en la que nos encontramos.
+	- **Change Keyboard Layout**  
+	Permite asignar el tipo de teclado que tengamos. En mi caso, he puesto teclado español.  
 - **Advanced Options > Memory Split**  
 Es la memoria que le asignamos a la GPU (procesador de gráficos). Si vamos a instalar Kodi (XBMC), para que funcione perfectamente es aconsejable darle la mitad de la RAM, en la Raspberry Pi 2 tenemos 1 GB y en las demás 512 MB, así que pondremos 256 MB para la Raspberry Pi antigua o 512 MB para la Raspberry Pi 2.
 - **Advanced Options > SSH**  
 Es fundamental activarlo para poder acceder a la Raspberry Pi por red sin necesidad de teclado ni ratón.
 
 
+### Idioma
+
+Para evitar que aparezcan continuamente los warnings de perl tales como:
+
+```
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+	LANGUAGE = (unset),
+	LC_ALL = (unset),
+	LC_CTYPE = "UTF-8",
+	LANG = "en_US.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to a fallback locale ("en_US.UTF-8").
+```
+
+lo que podemos hacer es ver las entradas de idioma que faltan por asignar y asignarlas. Con el comando `locale` podemos ver el listado completo, y para asignarlas:
+
+```
+export LANGUAGE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LC_TYPE=en_US.UTF-8
+export LANG=en_US.UTF-8
+```
+
+Finalmente, para recrear y configurar los idiomas:
+
+```
+sudo locale-gen
+sudo dpkg-reconfigure locales
+```
+
+
 
 ### Actualización de software
 
 Para actualizar el software a las últimas versiones:  
-`sudo apt-get update && sudo apt-get upgrade`  
+`sudo apt-get update && sudo apt-get upgrade`   
 Y si además queremos actualizar los posibles cambios de dependencias:  
 `sudo apt-get update && sudo apt-get dist-upgrade`  
 Podemos consultar el manual con `man apt-get`.
@@ -336,7 +374,9 @@ Para detener el servidor VNC:
 Para hacer que se ejecute el VNCServer cada vez que se inicie la Raspberry Pi, deberemos crear el siguiente archivo:
 
 ```
-cd /home/pi/.config/autostart
+cd /home/pi/.config
+mkdir -p autostart
+cd autostart
 sudo nano tightvnc.desktop
 ```
 
@@ -646,6 +686,7 @@ Para iniciarlo debemos ejecutar:
 `kodi-standalone`  
 O para iniciarlo en background:  
 `kodi-standalone &`
+
 
 
 
