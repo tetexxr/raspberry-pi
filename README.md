@@ -44,6 +44,7 @@ Raspberry Pi Start Guide
 	- [Centro de descargas](#centro-de-descargas)
 		- [Instalar Transmission](#instalar-transmission)
 		- [Configurar Transmission](#configurar-transmission)
+		- [Deluge](#deluge)
 	- [Medir ancho de banda](#medir-ancho-de-banda)
 	- [Kodi](#kodi)
 - [Comandos básicos que hay que conocer](#comandos-básicos-que-hay-que-conocer)
@@ -598,6 +599,101 @@ Y se puede acceder vía web a través de la dirección:
 `http://ip_address_of_the_raspberry:9091`  
 y el usuario y password por defecto es `transmission:transmission`.  
 Podemos consultar el manual con `man transmission-daemon`.
+
+#### Deluge
+
+Otra opción que tenemos a la hora de elegir un cliente de torrent es *Deluge*. Este ofrece algunas características extras de configuración con el mismo consumo de recursos que *Transmission*.  
+Para instararlo, debemos ejecutar en nuestra consola:  
+
+```
+sudo apt-get update
+sudo apt-get install deluge-common deluged deluge-web deluge-console
+```
+
+Con esto tenemos Deluge instalado, y para hacer que se ejecute al arrancar el sistema, debemos ejecutar el siguiente comando:  
+`sudo nano /etc/systemd/system/deluged.service`
+
+En el editor copiaremos el siguiente código:
+
+```
+[Unit]
+Description=Deluge Bittorrent Client Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=users
+UMask=007
+
+Environment=LC_ALL=en_US.UTF-8
+Environment=LANG="en_US.UTF-8"
+Environment=LANGUAGE="en_US:en"
+
+ExecStart=/usr/bin/deluged -d
+
+Restart=Always
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
+```
+
+También queremos iniciar automáticamente la interfaz web:  
+`sudo nano /etc/systemd/system/deluge-web.service`
+
+Y pegamos el código:
+
+```
+[Unit]
+Description=Deluge Bittorrent Client Web Interface
+After=network.target
+
+[Service]
+Type=simple
+
+User=pi
+Group=users
+UMask=027
+
+ExecStart=/usr/bin/deluge-web
+
+Restart=Always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Además, debemos activar el arranque al inicio, para ello ejecutamos estos comandos:  
+
+```
+sudo systemctl enable deluged
+sudo systemctl enable deluge-web
+```
+
+Además, Sam Nazarko nos ha dejado un par de ficheros de lo que probablemente será una instalación desde la App Store en un futuro. Pero ahora nos dan problemas, por lo que debemos borrar los ficheros "deluge*" de los directorios "/etc/init.d" y "/etc/default".
+
+```
+sudo rm /etc/init.d/deluged
+sudo rm /etc/default/deluged
+```
+
+Con esto ya tendremos Deluge instalado y funcionando. Podemos reiniciar la Raspberry Pi y acceder a la dirección:  
+`http://ip_address_of_the_raspberry:8112`
+
+Si todo ha ido bien, nos saldrá la interfaz web de Deluge, nos preguntará un password, que por defecto es *deluge* y nos dirá que lo cambiemos en la primera ejecución (nos lleva directamente a la pantalla de cambio de la contraseña).
+
+Para terminar con Deluge, nos falta por hacer un par de configuraciones. Si vamos al directorio `/home/pi/.config/deluge` veremos que nos ha creado un fichero llamado "auth". Editamos dicho fichero con el siguiente comando:  
+`sudo nano /home/pi/.config/deluge/auth`
+
+Aquí insertaremos una nueva línea, con la siguiente estructura:  
+`user:password:10`
+
+Siendo el usuario y la contraseña los que deseemos para conectarnos a Deluge, ya sea mediante un cliente externo o bien mediante flexget.  
+Para terminar, abriremos Deluge para poder conectarnos desde fuera de nuestra red local, mediante el siguiente comando:  
+`deluge-console "config -s allow_remote True"`
+
+Si reiniciamos, veremos que ya nos podemos conectar desde fuera o bien desde el cliente de nuestra plataforma (descargable desde la web de Deluge), usando el usuario y la contraseña creados anteriormente.
 
 
 ### Medir ancho de banda
