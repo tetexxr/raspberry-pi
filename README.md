@@ -816,9 +816,9 @@ Habilitar transporte https:
 Añadir la clave gpg para el repositorio uglymaoo:  
 `wget -O - https://dev2day.de/pms/dev2day-pms.gpg.key | sudo apt-key add -`  
 Añadir el repositorio uglymaoo:  
-`echo "deb https://dev2day.de/pms/ jessie main" | sudo tee /etc/apt/sources.list.d/pms.list`
+`echo "deb https://dev2day.de/pms/ jessie main" | sudo tee /etc/apt/sources.list.d/pms.list`  
 Actualizar la lista de paquetes:   
-`sudo apt-get update`
+`sudo apt-get update`  
 Instalar Plex Media Server:  
 `sudo apt-get install plexmediaserver -y`  
 Cuando salga una nueva version se puede actualizar manualmente con el comando:  
