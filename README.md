@@ -47,6 +47,9 @@ Raspberry Pi Start Guide
 		- [Deluge](#deluge)
 	- [Medir ancho de banda](#medir-ancho-de-banda)
 	- [Kodi](#kodi)
+	- [Plex](#plex)
+		- [Requerimientos de pre-instalación](#requerimientos-de-pre-instalación)
+		- [Instalación de Plex Media Server](#instalación-de-plex-media-server)
 - [Comandos básicos que hay que conocer](#comandos-básicos-que-hay-que-conocer)
 	- [Mostrar información sobre el hardware](#mostrar-información-sobre-el-hardware)
 	- [Los comandos más importantes](#los-comandos-más-importantes)
@@ -782,6 +785,50 @@ Para iniciarlo debemos ejecutar:
 `kodi-standalone`  
 O para iniciarlo en background:  
 `kodi-standalone &`
+
+
+### Plex
+
+Plex organiza video, música y fotos de librerías de medios personales y hace stream de estos a smart TVs, reproductores de medios y dispositivos móviles.  
+Mediante la interfaz web de Plex https://plex.tv/ podemos configurar y ver nuestro contenido desde cualquier sitio.
+
+#### Requerimientos de pre-instalación
+
+Verificar que tenemos el idioma en-US instalado:  
+`locale -a`
+
+La salida tiene que ser algo parecido a:
+
+```
+C
+C.UTF-8
+en_US.utf8
+POSIX
+```
+
+Verificar que tenemos la versión 2.19 o superior de libc6:  
+`ldd --version`
+
+#### Instalación de Plex Media Server
+
+Habilitar transporte https:  
+`sudo apt-get update && sudo apt-get install apt-transport-https -y --force-yes`  
+Añadir la clave gpg para el repositorio uglymaoo:  
+`wget -O - https://dev2day.de/pms/dev2day-pms.gpg.key | sudo apt-key add -`  
+Añadir el repositorio uglymaoo:  
+`echo "deb https://dev2day.de/pms/ jessie main" | sudo tee /etc/apt/sources.list.d/pms.list`
+Actualizar la lista de paquetes:   
+`sudo apt-get update`
+Instalar Plex Media Server:  
+`sudo apt-get install plexmediaserver -y`  
+Cuando salga una nueva version se puede actualizar manualmente con el comando:  
+`sudo apt-get update && sudo apt-get upgrade -y`  
+
+Para acceder a Plex se puede hacer desde la url:  
+`http://ip_address_of_the_raspberry:32400/web`
+
+Si no se ha iniciado, puede que sea debido a un fallo de systemd / init.d que puede ocurrir si estamos en Debian Jessie, y para iniciar Plex de forma manual podemos ejecutar:  
+`sudo bash /usr/lib/plexmediaserver/start.sh &`
 
 
 
