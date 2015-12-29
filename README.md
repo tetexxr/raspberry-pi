@@ -536,6 +536,8 @@ Por último, debemos reiniciar el servidor DLNA:
 y forzar la búsqueda de contenido:  
 `sudo service minidlna force-reload`  
 En la documentación, pone que se puede forzar la búsqueda de contenido con el comando `minidlnad -R`, pero yo lo he probado y no funciona.  
+Si quisieramos que el servicio no se iniciara al arrancar el sistema deberíamos ejecutar:  
+`sudo update-rc.d -f minidlna remove`  
 Podemos consultar el manual con `man minidlna`.
 
 
@@ -597,6 +599,12 @@ Directorio que se observará por si se añaden torrents nuevos.
 
 Con toda la configuración terminada, ya se puede iniciar el servicio:  
 `sudo service transmission-daemon start`
+
+Para no iniciar el servicio al arrancar el sistema deberíamos editar el archivo:  
+`sudo nano /etc/default/transmission-daemon`  
+Y asignar la propiedad `ENABLE_DAEMON=0`.  
+U otra manera sería deshabilitar el servicio:  
+`sudo systemctl disable transmission-daemon.service`
 
 Y se puede acceder vía web a través de la dirección:  
 `http://ip_address_of_the_raspberry:9091`  
@@ -829,6 +837,9 @@ Para acceder a Plex se puede hacer desde la url:
 
 Si no se ha iniciado, puede que sea debido a un fallo de systemd / init.d que puede ocurrir si estamos en Debian Jessie, y para iniciar Plex de forma manual podemos ejecutar:  
 `sudo bash /usr/lib/plexmediaserver/start.sh &`
+
+Finalmente, si queremos acceder desde fuera de la red local, deberemos abrir los puertos de la Raspberry Pi. En caso de usar *ufw firewall*:  
+`sudo ufw allow 32400`
 
 
 
