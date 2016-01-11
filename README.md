@@ -566,6 +566,17 @@ sudo mkdir -p /media/hdd/torrents
 Para dar permisos, es suficiente con añadir el usuario *debian-transmission* al grupo *ntfs* que he creado previamente:  
 `sudo usermod -a -G ntfs debian-transmission`
 
+O en el caso de tener otra unidad montada, solo deberíamos dar permisos a las carpetas para que Transmission pueda leer y escribir en ellas sin problemas:   
+
+```
+sudo chown -R pi:debian-transmission /media/anotherhhdd/downloading
+sudo chown -R pi:debian-transmission /media/anotherhhdd/sharing
+sudo chown -R pi:debian-transmission /media/anotherhhdd/torrents
+sudo chmod -R 777 /media/anotherhhdd/downloading
+sudo chmod -R 777 /media/anotherhhdd/sharing
+sudo chmod -R 777 /media/anotherhhdd/torrents
+```
+
 Para configurar las carpetas de descarga y otros parámetros de funcionamiento, debemos editar el archivo de configuración:  
 `sudo nano /etc/transmission-daemon/settings.json`  
 y modificar las siguietes propiedades:
