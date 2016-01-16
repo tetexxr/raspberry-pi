@@ -50,6 +50,7 @@ Raspberry Pi Start Guide
 	- [Plex](#plex)
 		- [Requerimientos de pre-instalación](#requerimientos-de-pre-instalación)
 		- [Instalación de Plex Media Server](#instalación-de-plex-media-server)
+		- [Perfiles para DLNA](#perfiles-para-dlna)
 - [Comandos básicos que hay que conocer](#comandos-básicos-que-hay-que-conocer)
 	- [Mostrar información sobre el hardware](#mostrar-información-sobre-el-hardware)
 	- [Los comandos más importantes](#los-comandos-más-importantes)
@@ -851,6 +852,29 @@ Si no se ha iniciado, puede que sea debido a un fallo de systemd / init.d que pu
 
 Finalmente, si queremos acceder desde fuera de la red local, deberemos abrir los puertos de la Raspberry Pi. En caso de usar *ufw firewall*:  
 `sudo ufw allow 32400`
+
+#### Perfiles para DLNA
+
+En algunos casos puede que el servicio DLNA que ofrece nuestro servidor Plex no sea reconocible por nuestros dispositivos cliente. En estos casos, podemos incorporar nuevos perfiles.  
+Podemos encontrar algunos [aquí](https://github.com/tetexxr/Plex-DNLA-client-profiles).  
+En mi caso, he usado uno para mi televisor [Samsung](https://github.com/tetexxr/Plex-DNLA-client-profiles/blob/master/Samsung.xml) y otro para un portátil con [Windows](https://github.com/tetexxr/Plex-DNLA-client-profiles/blob/master/Windows.xml).
+
+Para añadir estos perfiles, basta con localizar y modificar el archivo *dlnaclientprofiles.xml*.  
+Para ello, hay un paquete que nos puede ser de utilidad, y que suele ser más rápido que usar `find`, que es `locate`, y lo podemos instalar en caso de que no lo tengamos instalado:   
+
+```
+sudo apt-get update
+sudo apt-get install mlocate
+```
+
+La razón por la que `locate` es más rápido que `find` es porque se basa en una base de datos de los archivos del sistema.  
+La base de datos por lo general se actualiza una vez al día con un cron script, pero se puede actualizar manualmente escribiendo:   
+`sudo updatedb`
+
+Buscamos el archivo de perfiles:   
+`locate dlnaclientprofiles.xml`   
+Lo encontraremos en una ruta parecida a */usr/lib/plexmediaserver/Resources/Plug-ins/System.bundle/Contents/Resources/dlnaclientprofiles.xml*, lo editamos añadiendo los perfiles que necesitemos, guardamos, y reiniciamos el servicio:  
+`sudo service plexmediaserver restart`
 
 
 
