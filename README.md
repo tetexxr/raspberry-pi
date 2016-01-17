@@ -51,6 +51,8 @@ Raspberry Pi Start Guide
 		- [Requerimientos de pre-instalación](#requerimientos-de-pre-instalación)
 		- [Instalación de Plex Media Server](#instalación-de-plex-media-server)
 		- [Perfiles para DLNA](#perfiles-para-dlna)
+	- [Acceso desde internet](#acceso-desde-internet)
+		- [Instalando No-IP](#instalando-no-ip)
 - [Comandos básicos que hay que conocer](#comandos-básicos-que-hay-que-conocer)
 	- [Mostrar información sobre el hardware](#mostrar-información-sobre-el-hardware)
 	- [Los comandos más importantes](#los-comandos-más-importantes)
@@ -877,6 +879,55 @@ Lo encontraremos en una ruta parecida a */usr/lib/plexmediaserver/Resources/Plug
 `sudo service plexmediaserver restart`
 
 
+### Acceso desde internet
+
+Para poder conectarnos a nuestra Raspberry Pi desde fuera de nuestra red local, lo que necesitamos es abrir los puertos necesarios en el router, y alguna manera de saber la IP. Para ello, podemos usar alguna servicio de DNS dinámico. ¿Y eso que significa? Pues un servicio que me de un dominio, como puede ser *whatever.domain.com*, sin tenernos que preocupar de cual es nuestra IP.
+
+El que voy a explicar como instalar es el servicio que proporciona [No-IP](http://www.noip.com).  
+Lo primero es registrarse en [No-IP](http://www.noip.com) y añadir un nuevo host. Eso nos proporcionará una dirección del estilo *myraspi.noip.com*. Si necesitáramos más de un host, podemos conseguirlo pagando.
+
+#### Instalando No-IP
+
+Lo primero que tenemos que hacer es crear una carpeta:
+
+```
+mkdir noip
+cd noip
+```
+
+Nos descargamos el cliente de No-Ip:  
+`wget http://www.noip.com/client/linux/noip-duc-linux.tar.gz`  
+Descomprimimos el archivo:  
+`tar vzxf noip-duc-linux.tar.gz`  
+Entramos en la carpeta que acabamos de descomprimir. A lo mejor el número de versión es distinto:  
+`cd noip-2.1.9-1`  
+Y lo instalamos, instalando previamente el paquete *build-essential* si no lo tenemos:  
+
+```
+sudo apt-get install build-essential
+make
+sudo make install
+```
+
+Tras ejecutar el último comando nos va a pedir una serie de cosas:  
+
+1. Nuestro email de la cuenta de *noip.com*.
+2. La contraseña de la cuenta de *noip.com*.
+3. Si queremos sincronizar todos los dominios que tenemos en esta cuenta: **NO**.
+4. Si queremos actualizar el dominio N de nuestra cuenta (le decimos que si escribiendo **Y**, en el dominio correspondiente, el resto **N**).
+5. El tiempo de refresco, en minutos, del dominio (cada cuanto tiempo le vamos a decir a noip.com cual es nuestra IP). **30** minutos parece razonable.
+6. Si queremos ejecutar algún comando cuando se realice el refresco, en nuestro caso **NO**.
+
+Llegados a este punto el programa ya está instalado, y lo podemos ejecutar:  
+`sudo /usr/local/bin/noip2`  
+En caso de querer que se ejecute cada vez que se reinicie el sistema, podemos hacerlo modificando el archivo *rc.local*:  
+`sudo nano /etc/rc.local`  
+Y añadimos la línea:  
+`/usr/local/bin/noip2`  
+antes del *exit 0*, guardamos, y ya está. Si queremos comprobar que funciona:  
+`ps aux | grep noip2`
+
+
 
 
 Comandos básicos que hay que conocer
@@ -928,7 +979,7 @@ Y si queremos eliminar archivos a partir de una búsqueda (cuidado con este coma
 
 ### Otros comandos útiles
 
-Para crear un link (enlace o acceso directo) a un directorio:  
+Para crear un soft link (enlace o acceso directo) a un directorio:  
 `ln -s /home/pi/Pictures/ my-pictures`  
 Y a un archivo:  
 `ln -s /home/pi/Pictures/Background.jpg "My background picture.jpg"`  
