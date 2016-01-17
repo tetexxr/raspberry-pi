@@ -64,6 +64,7 @@ Raspberry Pi Start Guide
 		- [Crear dispositivo loopback](#crear-dispositivo-loopback)
 		- [Cambiar el tamaño de la partición usando GParted](#cambiar-el-tamaño-de-la-partición-usando-gparted)
 		- [Encogiendo la imagen](#encogiendo-la-imagen)
+- [Tareas programadas](#tareas-programadas)
 
 
 
@@ -102,6 +103,7 @@ donde *n* es el número de disco que hemos visto anteriormente.
 En caso de obtener un error parecido a `dd: bs: illegal numeric value` poner el valor del parámetro `bs=1M`. Esto puede ocurrir dependiendo de si tenemos *GNU coreutils* instalado o no.
 
 Finalizados estos pasos, ya podemos insertar la tarjeta de memoria en la Raspberry Pi e iniciarla.
+
 
 
 Configuración
@@ -929,7 +931,6 @@ antes del *exit 0*, guardamos, y ya está. Si queremos comprobar que funciona:
 
 
 
-
 Comandos básicos que hay que conocer
 ------------------------------------
 
@@ -1114,3 +1115,89 @@ Para recortar todo este espacio no asignado usaremos el comando `truncate`. A es
 `truncate --size=$[(8300543 + 1) * 512] myimage.img`
 
 Ahora ya tenemos la imagen preparada para restaurar en una tarjeta de menor tamaño.
+
+
+
+Tareas programadas
+------------------
+
+En sistemas operativos Unix, para programar tareas tenemos un administrador regular de procesos en segundo plano (demonio) llamado *cron*.  
+Lo que hace cron es revisar cada minuto la tabla de tareas *crontab* en búsqueda de tareas que se deban cumplir.  
+Crontab es un simple archivo de texto que guarda una lista de comandos a ejecutar en un tiempo especificado por el usuario. Crontab verificará la fecha y hora en que se debe ejecutar el script o el comando, los permisos de ejecución y lo realizará en el background. Cada usuario puede tener su propio archivo crontab.
+
+Para agregar tareas a crontab, hay que ejecutar:  
+`crontab -e`  
+En algunas distros, la primera vez que se ejecuta, tenemos la opción de elegir el editor de textos.
+
+Lo que aparecerá en la pantalla, es una explicación, y al final una línea como:  
+`# m h  dom mon dow   command`
+
+- **m** (minute) corresponde al minuto en que se va a ejecutar el script, el valor va de 0 a 59.
+- **h** (hour) la hora exacta, se maneja el formato de 24 horas, los valores van de 0 a 23, siendo 0 las 12:00 de la medianoche.
+- **dom** (day of month) hace referencia al día del mes, por ejemplo se puede especificar 15 si se quiere ejecutar cada día 15
+- **dow** (day of week) significa el día de la semana, puede ser numérico (0 a 7, donde 0 y 7 son domingo) o las 3 primeras letras del día en inglés: mon, tue, wed, thu, fri, sat, sun.
+- **user** define el usuario que va a ejecutar el comando, puede ser root, u otro usuario diferente siempre y cuando tenga permisos de ejecución del script.
+- **command** refiere al comando o a la ruta absoluta del script a ejecutar, ejemplo: /home/user/scripts/somescript.sh, si acaso llama a un script este debe ser ejecutable.
+
+| Ejemplo 			| Descripción															|
+|-------------------|-----------------------------------------------------------------------|
+| 1 * * * *			| Se ejecuta al minuto 1 de cada hora de todos los días 				|
+| 15 8 * * *		| A las 8:15 a.m. de cada día 											|
+| 15 20 * * *		| A las 8:15 p.m. de cada día 											|
+| 0 5 * * 0			| A las 5 a.m. todos los domingos 										|
+| * 5 * * sun		| Cada minuto de 5:00 a.m. a 5:59 a.m. todos los domingos 				|
+| 45 19 1 * *		| A las 7:45 p.m. del primero de cada mes 								|
+| 1 * 20 7 *		| Al minuto 1 de cada hora del 20 de julio 								|
+| 10 1 * 12 1		| A la 1:10 a.m. todos los lunes de diciembre 							|
+| 0 12 16 * wed		| Al mediodía de los días 16 de cada mes y que sea Miércoles 			|
+| 30 9 20 7 4		| A las 9:30 a.m. del día 20 de julio y que sea jueves 					|
+| 30 9 20 7 *		| A las 9:30 a.m. del día 20 de julio sin importar el día de la semana	|
+| 20 * * * 6		| Al minuto 20 de cada hora de los sábados								|
+| 20 * * 1 6		| Al minuto 20 de cada hora de los sábados de enero 					|
+
+Y un ejemplo completo, podría ser:  
+`45 10 * * sun root apt-get -y update`  
+Donde el usuario root ejecutará una actualización todos los domingos (sun) a las 10:45 a.m.
+
+También es posible especificar listas en los campos. Las listas pueden estar en la forma de 1,2,3,4 o en la forma de 1-4 que sería lo mismo. Cron, de igual manera soporta incrementos en las listas, que se indican de la siguiente manera:
+
+| Ejemplo 					| Descripción 																																						|
+|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 59 11 * 1-3 1,2,3,4,5		| A las 11:59 a.m. de lunes a viernes, de enero a marzo 																											|
+| 45 * 10-25 * 6-7 			| Al minuto 45 de todas las horas de los días 10 al 25 de todos los meses y que el día sea sábado o domingo 														|
+| 10,30,50 * * * 1,3,5 		| En el minuto 10, 30 y 50 de todas las horas de los días lunes, miércoles y viernes 																				|
+| */15 10-14 * * * 			| Cada quince minutos de las 10:00 a.m. a las 2:00 p.m. 																											|
+| * 12 1-10/2 2,8 * 		| Todos los minutos de las 12 del día, en los días 1, 3, 5, 7 y 9 de febrero y agosto. (El incremento en el tercer campo es de 2 y comienza a partir del 1) 		|
+| 0 */5 1-10,15,20-23 * 3 	| Cada 5 horas de los días 1 al 10, el día 15 y del día 20 al 23 de cada mes y que el día sea miércoles 															|
+| 3/3 2/4 2 2 2 			| Cada 3 minutos empezando por el minuto 3 (3, 6, 9, etc.) de las horas 2, 6, 10, etc. (cada 4 horas empezando en la hora 2) del día 2 de febrero y que sea martes 	|
+
+Hay algunas programaciones que se pueden definir con cadenas de texto más legibles:
+
+Si esto resulta confuso, crontab maneja cadenas especiales para definir estos rangos.
+
+- **@reboot** Ejecuta una vez, al inicio
+- **@yearly** Ejecuta sólo una vez al año: 0 0 1 1 *
+- **@annually** Igual que @yearly
+- **@monthly** Ejecuta una vez al mes, el día primero: 0 0 1 * *
+- **@weekly** Semanal el primer minuto de la primer hora de la semana: 0 0 * * 0
+- **@daily** Diario, a las 12:00 a.m.: 0 0 * * *
+- **@midnight** Igual que @daily
+- **@hourly** Al primer minuto de cada hora: 0 * * * *
+
+Y su uso es muy sencillo:
+
+```
+@monthly user /home/user/scripts/backup.sh 			# backup mensual
+@daily root apt-get update && apt-get -y upgrade 	# actualización diaria
+```
+
+Finalmente, hay algunos comandos de cron que debemos conocer:
+
+```
+crontab file 		# remplaza el archivo crontab por el especificado
+crontab -e 			# editar el archivo crontab
+crontab -l 			# listar todas las tareas de crontab del usuario
+crontab -d 			# borra el crontab del usuario
+crontab -c dir 		# define el directorio de crontab del usuario
+crontab -u user 	# para gestionar el crontab de otro usuario
+```
