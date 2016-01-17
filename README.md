@@ -23,6 +23,7 @@ Raspberry Pi Start Guide
 		- [Desactivar ahorro de energía](#desactivar-ahorro-de-energía)
 		- [Establecer la conexión (DHCP)](#establecer-la-conexión-dhcp)
 		- [Dirección IP estática (opcional)](#dirección-ip-estática-opcional)
+		- [Información de la red](#información-de-la-red)
 	- [Discos duros externos](#discos-duros-externos)
 		- [Discos duros sin alimentación externa](#discos-duros-sin-alimentación-externa)
 		- [Auto mount](#auto-mount)
@@ -274,6 +275,21 @@ wpa-ap-scan 1
 wpa-scan-ssid 1
 wpa-ssid "YOUR-WIFI-NAME"
 wpa-psk "YOUR-WIFI-PASSWORD"
+```
+
+#### Información de la red
+
+Una manera de saber si una interfaz de red tiene link, consiste en consultar el nodo `/sys/class/net/` del sistema de archivos virtual `/sys` que contiene información de controladores y dispositivos:  
+`ls /sys/class/net/`  
+En mi caso, el resultado es:  
+`eth0  eth1  lo  wlan0`  
+Como se observa, en este nodo existe un directorio para cada dispositivo de red, y diferentes archivos que exportan información relevante sobre los mismos. Para obtener los de la interfaz *eth0*:  
+`ls /sys/class/net/eth0`  
+Los archivos *carrier* y *operstate* reportan si la interfaz tiene "carrier" (cual es el estado del link físico, es decir, si la interfaz tiene señal) y cual es su estado operacional, respectivamente:  
+
+```
+cat /sys/class/net/eth0/carrier 	# obtenemos 1 o 0
+cat /sys/class/net/eth0/operstate 	# obtenemos up o down
 ```
 
 
