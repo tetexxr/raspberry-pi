@@ -741,8 +741,8 @@ Kodi soporta una amplia gama de formatos multimedia, e incluye características 
 Para instalar Kodi 15.2RC3 para Jessie, hay que ejecutar en el terminal:
 
 ```
-wget http://steinerdatenbank.de/software/kodi-15-jessie.tar.gz
-tar -xzf kodi-15-jessie.tar.gz
+wget http://steinerdatenbank.de/software/kodi-15-jessie-rpb.tar.gz
+tar -xzf kodi-15-jessie-rpb.tar.gz
 cd kodi-15-jessie
 sudo ./install
 ```
