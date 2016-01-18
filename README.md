@@ -1217,3 +1217,5 @@ crontab -d 			# borra el crontab del usuario
 crontab -c dir 		# define el directorio de crontab del usuario
 crontab -u user 	# para gestionar el crontab de otro usuario
 ```
+
+Podemos consultar el manual con `man crontab`.
